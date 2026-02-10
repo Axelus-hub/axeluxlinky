@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkTree God Mode - Generator Premium</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌴</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fas fa-tree"></i>
+                <h1>LinkTree <span class="pro-badge">GOD MODE</span></h1>
+            </div>
+            <div class="header-actions">
+                <button id="previewBtn" class="btn btn-outline">
+                    <i class="fas fa-eye"></i> Preview
+                </button>
+                <button id="exportBtn" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <button id="resetBtn" class="btn btn-danger">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar Dashboard -->
+            <aside class="dashboard-sidebar">
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <h3><i class="fas fa-sliders-h"></i> Dashboard</h3>
+                        <ul>
+                            <li class="active" data-section="profile"><i class="fas fa-user-circle"></i> Profile</li>
+                            <li data-section="links"><i class="fas fa-link"></i> Links</li>
+                            <li data-section="design"><i class="fas fa-palette"></i> Design</li>
+                            <li data-section="social"><i class="fas fa-share-alt"></i> Social Icons</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3><i class="fas fa-chart-line"></i> Analytics</h3>
+                        <ul>
+                            <li data-section="analytics"><i class="fas fa-chart-bar"></i> Stats</li>
+                            <li data-section="clicks"><i class="fas fa-mouse-pointer"></i> Clicks</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3><i class="fas fa-crown"></i> Pro Features</h3>
+                        <ul>
+                            <li data-section="branding"><i class="fas fa-trademark"></i> Branding</li>
+                            <li data-section="animation"><i class="fas fa-magic"></i> Animation</li>
+                            <li data-section="qrcode"><i class="fas fa-qrcode"></i> QR Code</li>
+                            <li data-section="customcss"><i class="fas fa-code"></i> Custom CSS</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3><i class="fas fa-file-export"></i> Export</h3>
+                        <ul>
+                            <li data-section="export"><i class="fas fa-file-code"></i> Export Page</li>
+                            <li data-section="templates"><i class="fas fa-file-import"></i> Templates</li>
+                        </ul>
+                    </div>
+                </nav>
+                
+                <div class="mobile-preview">
+                    <h3><i class="fas fa-mobile-alt"></i> Mobile Preview</h3>
+                    <div class="preview-frame">
+                        <div class="preview-header">
+                            <div class="preview-profile">
+                                <img id="previewProfileImg" src="" alt="Profile">
+                                <h4 id="previewName">Your Name</h4>
+                                <p id="previewBio">Your bio here</p>
+                            </div>
+                        </div>
+                        <div class="preview-links" id="previewLinksContainer">
+                            <!-- Links akan ditampilkan di sini -->
+                            <div class="preview-link-item">Link Example</div>
+                            <div class="preview-link-item">Another Link</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="dashboard-content">
+                <!-- Profile Section -->
+                <section id="profile" class="content-section active">
+                    <h2><i class="fas fa-user-circle"></i> Profile Settings</h2>
+                    <div class="settings-card">
+                        <div class="form-group">
+                            <label for="profileImage">Profile Image</label>
+                            <div class="image-upload-container">
+                                <div class="image-preview" id="profileImagePreview">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="image-upload-controls">
+                                    <input type="file" id="profileImage" accept="image/*" class="hidden">
+                                    <button type="button" id="uploadImageBtn" class="btn btn-outline">
+                                        <i class="fas fa-upload"></i> Upload Image
+                                    </button>
+                                    <button type="button" id="removeImageBtn" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileName">Name</label>
+                            <input type="text" id="profileName" placeholder="Enter your name" value="John Doe">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileBio">Bio</label>
+                            <textarea id="profileBio" rows="3" placeholder="Tell people about yourself">Digital Creator | Content Strategist | Building the future of social connections</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="verifiedBadge" checked>
+                                Show Verified Badge <i class="fas fa-check-circle verified-icon"></i>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="headerStyle">Header Style</label>
+                            <select id="headerStyle">
+                                <option value="simple">Simple</option>
+                                <option value="glass">Glassmorphism</option>
+                                <option value="gradient">Gradient</option>
+                                <option value="image">Image Background</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Links Section -->
+                <section id="links" class="content-section">
+                    <h2><i class="fas fa-link"></i> Link Management</h2>
+                    <div class="settings-card">
+                        <div class="links-header">
+                            <h3>Your Links</h3>
+                            <button id="addLinkBtn" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add New Link
+                            </button>
+                        </div>
+                        
+                        <div class="links-list" id="linksList">
+                            <!-- Links akan ditambahkan di sini melalui JavaScript -->
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="linkFolder">Folder / Collection</label>
+                            <select id="linkFolder">
+                                <option value="none">No Folder</option>
+                                <option value="social">Social Media</option>
+                                <option value="portfolio">Portfolio</option>
+                                <option value="business">Business</option>
+                                <option value="personal">Personal</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="linkSchedule">
+                                Enable Schedule Links
+                            </label>
+                            <div id="scheduleSettings" class="hidden">
+                                <div class="time-inputs">
+                                    <input type="time" id="scheduleStart">
+                                    <span>to</span>
+                                    <input type="time" id="scheduleEnd">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Design Section -->
+                <section id="design" class="content-section">
+                    <h2><i class="fas fa-palette"></i> Design Customization</h2>
+                    <div class="settings-card">
+                        <div class="form-group">
+                            <label for="themeColor">Theme Color</label>
+                            <input type="color" id="themeColor" value="#3a86ff">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fontSelector">Font Family</label>
+                            <select id="fontSelector">
+                                <option value="Poppins">Poppins</option>
+                                <option value="Inter">Inter</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Courier New">Courier New</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="buttonStyle">Button Style</label>
+                            <select id="buttonStyle">
+                                <option value="rounded">Rounded</option>
+                                <option value="pill">Pill</option>
+                                <option value="glass">Glass</option>
+                                <option value="flat">Flat</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="backgroundType">Background</label>
+                            <select id="backgroundType">
+                                <option value="solid">Solid Color</option>
+                                <option value="gradient">Gradient</option>
+                                <option value="image">Image</option>
+                                <option value="pattern">Pattern</option>
+                            </select>
+                            <div id="backgroundSettings" class="background-settings">
+                                <!-- Background settings akan ditampilkan berdasarkan pilihan -->
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="darkModeToggle">
+                                Enable Dark Mode
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Social Icons Section -->
+                <section id="social" class="content-section">
+                    <h2><i class="fas fa-share-alt"></i> Social Media Icons</h2>
+                    <div class="settings-card">
+                        <p>Select which social icons to display:</p>
+                        <div class="social-icons-grid" id="socialIconsGrid">
+                            <!-- Social icons akan diisi melalui JavaScript -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="analytics" class="content-section">
+                    <h2><i class="fas fa-chart-bar"></i> Analytics Dashboard</h2>
+                    <div class="settings-card">
+                        <div class="stats-overview">
+                            <div class="stat-card">
+                                <h3 id="totalClicks">0</h3>
+                                <p>Total Clicks</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="mostClicked">0</h3>
+                                <p>Most Clicked</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="activeLinks">0</h3>
+                                <p>Active Links</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <h3>Top Links</h3>
+                            <div class="links-stats" id="linksStats">
+                                <!-- Stats per link akan ditampilkan di sini -->
+                            </div>
+                        </div>
+                        
+                        <button id="resetAnalyticsBtn" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Reset Analytics
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Clicks Analytics Section -->
+                <section id="clicks" class="content-section">
+                    <h2><i class="fas fa-mouse-pointer"></i> Click Analytics</h2>
+                    <div class="settings-card">
+                        <div class="clicks-chart-container">
+                            <canvas id="clicksChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="clicks-details" id="clicksDetails">
+                            <!-- Detail klik akan ditampilkan di sini -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Branding Section -->
+                <section id="branding" class="content-section">
+                    <h2><i class="fas fa-trademark"></i> Custom Branding</h2>
+                    <div class="settings-card">
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="hideLogo">
+                                Hide LinkTree Logo
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="customFooter">Custom Footer Text</label>
+                            <textarea id="customFooter" rows="2" placeholder="Enter custom footer text"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="favicon">Custom Favicon URL</label>
+                            <input type="text" id="favicon" placeholder="https://example.com/favicon.ico">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Animation Section -->
+                <section id="animation" class="content-section">
+                    <h2><i class="fas fa-magic"></i> Link Animations</h2>
+                    <div class="settings-card">
+                        <div class="form-group">
+                            <label for="linkAnimation">Link Hover Animation</label>
+                            <select id="linkAnimation">
+                                <option value="none">None</option>
+                                <option value="pulse">Pulse</option>
+                                <option value="bounce">Bounce</option>
+                                <option value="glow">Glow</option>
+                                <option value="slide">Slide</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pageTransition">Page Transition</label>
+                            <select id="pageTransition">
+                                <option value="none">None</option>
+                                <option value="fade">Fade</option>
+                                <option value="slide">Slide</option>
+                                <option value="zoom">Zoom</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- QR Code Section -->
+                <section id="qrcode" class="content-section">
+                    <h2><i class="fas fa-qrcode"></i> QR Code Generator</h2>
+                    <div class="settings-card">
+                        <div class="qrcode-container">
+                            <div class="qrcode-preview" id="qrcodePreview">
+                                <!-- QR Code akan ditampilkan di sini -->
+                                <p>QR Code akan muncul di sini</p>
+                            </div>
+                            <div class="qrcode-controls">
+                                <div class="form-group">
+                                    <label for="qrcodeUrl">URL for QR Code</label>
+                                    <input type="text" id="qrcodeUrl" placeholder="https://example.com">
+                                </div>
+                                <button id="generateQrBtn" class="btn btn-primary">
+                                    <i class="fas fa-qrcode"></i> Generate QR Code
+                                </button>
+                                <button id="downloadQrBtn" class="btn btn-outline">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Custom CSS Section -->
+                <section id="customcss" class="content-section">
+                    <h2><i class="fas fa-code"></i> Custom CSS</h2>
+                    <div class="settings-card">
+                        <div class="form-group">
+                            <label for="customCss">Custom CSS Code</label>
+                            <textarea id="customCss" rows="10" placeholder="/* Tambahkan CSS kustom di sini */
+.my-link {
+    /* contoh kode */
+}"></textarea>
+                        </div>
+                        <button id="applyCssBtn" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Apply CSS
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Export Section -->
+                <section id="export" class="content-section">
+                    <h2><i class="fas fa-file-export"></i> Export LinkTree</h2>
+                    <div class="settings-card">
+                        <div class="export-options">
+                            <div class="export-option">
+                                <h3><i class="fas fa-file-code"></i> Export as HTML</h3>
+                                <p>Ekspor halaman LinkTree lengkap sebagai file HTML siap upload.</p>
+                                <button id="exportHtmlBtn" class="btn btn-primary">
+                                    <i class="fas fa-download"></i> Export HTML
+                                </button>
+                            </div>
+                            
+                            <div class="export-option">
+                                <h3><i class="fas fa-code"></i> View Source Code</h3>
+                                <p>Lihat dan salin kode HTML yang dihasilkan.</p>
+                                <button id="viewSourceBtn" class="btn btn-outline">
+                                    <i class="fas fa-eye"></i> View Source
+                                </button>
+                            </div>
+                            
+                            <div class="export-option">
+                                <h3><i class="fas fa-share-alt"></i> Share Button</h3>
+                                <p>Tambah tombol berbagi ke halaman LinkTree Anda.</p>
+                                <button id="addShareBtn" class="btn btn-outline">
+                                    <i class="fas fa-share"></i> Add Share Button
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Templates Section -->
+                <section id="templates" class="content-section">
+                    <h2><i class="fas fa-file-import"></i> Templates</h2>
+                    <div class="settings-card">
+                        <div class="templates-grid">
+                            <div class="template-card">
+                                <h3>Import JSON Template</h3>
+                                <p>Impor pengaturan dari file JSON.</p>
+                                <input type="file" id="importJson" accept=".json" class="hidden">
+                                <button id="importJsonBtn" class="btn btn-outline">
+                                    <i class="fas fa-file-import"></i> Import JSON
+                                </button>
+                            </div>
+                            
+                            <div class="template-card">
+                                <h3>Export JSON Template</h3>
+                                <p>Ekspor pengaturan saat ini sebagai template JSON.</p>
+                                <button id="exportJsonBtn" class="btn btn-outline">
+                                    <i class="fas fa-file-export"></i> Export JSON
+                                </button>
+                            </div>
+                            
+                            <div class="template-card">
+                                <h3>Reset to Default</h3>
+                                <p>Kembalikan semua pengaturan ke default.</p>
+                                <button id="resetToDefaultBtn" class="btn btn-danger">
+                                    <i class="fas fa-undo"></i> Reset All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>© AxelLux — All Rights Reserved</p>
+            <div class="footer-links">
+                <span id="autoSaveStatus"><i class="fas fa-save"></i> Auto-saved</span>
+                <span id="lastSaved">Just now</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal untuk menambah/mengedit link -->
+    <div id="linkModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Link</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="linkTitle">Link Title</label>
+                    <input type="text" id="linkTitle" placeholder="e.g., My Portfolio">
+                </div>
+                <div class="form-group">
+                    <label for="linkUrl">URL</label>
+                    <input type="text" id="linkUrl" placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="linkEnabled" checked>
+                        Link Enabled
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="linkHighlighted">
+                        Highlight this link
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="linkPinned">
+                        Pin to top
+                    </label>
+                </div>
+                <input type="hidden" id="linkIndex" value="-1">
+            </div>
+            <div class="modal-footer">
+                <button id="cancelLinkBtn" class="btn btn-outline">Cancel</button>
+                <button id="saveLinkBtn" class="btn btn-primary">Save Link</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk melihat source code -->
+    <div id="sourceModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>LinkTree Source Code</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="sourceCode" readonly rows="20"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="copySourceBtn" class="btn btn-primary">
+                    <i class="fas fa-copy"></i> Copy Code
+                </button>
+                <button id="closeSourceBtn" class="btn btn-outline">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <button class="mobile-nav-btn active" data-section="profile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </button>
+        <button class="mobile-nav-btn" data-section="links">
+            <i class="fas fa-link"></i>
+            <span>Links</span>
+        </button>
+        <button class="mobile-nav-btn" data-section="design">
+            <i class="fas fa-palette"></i>
+            <span>Design</span>
+        </button>
+        <button class="mobile-nav-btn" data-section="export">
+            <i class="fas fa-download"></i>
+            <span>Export</span>
+        </button>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
