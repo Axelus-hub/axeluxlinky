@@ -1,2671 +1,2457 @@
-// ===== LINKTREE GOD MODE GENERATOR =====
-// Version: 3.0.0
-// Author: AxelLux
-// Copyright: © 2024 AxelLux — All Rights Reserved
-
-// ===== GLOBAL STATE =====
+// ============ GLOBAL STATE ============
 const state = {
-    // Profile Data
-    profile: {
-        name: 'John Doe',
-        bio: 'Digital Creator | Content Strategist 🚀\nBuilding awesome things on the internet ✨\nConnect with me below!',
-        photo: null,
-        verified: false,
-        headerStyle: 'minimal'
+    // Profile
+    profileMedia: null,
+    profileMediaType: null,
+    profileBorder: {
+        width: 3,
+        color: '#ff85a1',
+        style: 'solid',
+        radius: 15,
+        shadow: 5
     },
     
-    // Links Data
+    // Colors
+    colors: {
+        text: '#ffffff',
+        background: 'glass',
+        button: 'pink',
+        primary: '#ff85a1',
+        secondary: '#85a7ff',
+        accent: '#85ffc7',
+        title: '#ff85a1'
+    },
+    
+    // Glass effects
+    glassEffects: {
+        opacity: 85,
+        blur: 8,
+        brightness: 100,
+        saturation: 100
+    },
+    
+    // Background
+    background: {
+        type: 'galaxy',
+        video: null,
+        blur: 8,
+        opacity: 85
+    },
+    
+    // Links
     links: [],
     linkCounter: 0,
     
-    // Design Settings
-    design: {
-        colors: {
-            primary: '#667eea',
-            secondary: '#764ba2',
-            text: '#ffffff',
-            background: '#0f172a'
-        },
-        font: {
-            family: 'Inter',
-            size: {
-                title: '32px',
-                body: '16px'
-            },
-            weight: '600'
-        },
-        background: {
-            type: 'color',
-            color: '#0f172a',
-            gradient: 'default',
-            image: null
-        },
-        buttons: {
-            style: 'rounded',
-            hoverEffect: true,
-            shadowEffect: true,
-            gradientEffect: false
-        }
-    },
-    
-    // Social Media Links
-    social: {
-        instagram: '',
-        tiktok: '',
-        youtube: '',
-        twitter: '',
-        facebook: '',
-        whatsapp: '',
-        telegram: '',
-        discord: '',
-        snapchat: '',
-        pinterest: '',
-        linkedin: '',
-        github: '',
-        spotify: '',
-        email: '',
-        website: ''
-    },
-    
-    // Analytics
-    analytics: {
-        views: 1250,
-        clicks: 850,
-        uniqueVisitors: 750,
-        clickRate: '68%',
-        clicksData: [45, 52, 38, 65, 72, 58, 49],
-        topLinks: []
-    },
-    
-    // Advanced Settings
-    advanced: {
-        customCSS: '',
-        hideLogo: false,
-        shareButton: true,
-        customFooter: '© 2024 Your Brand',
-        metaTitle: '',
-        metaDescription: '',
-        favicon: ''
+    // Title
+    title: {
+        text: 'My Awesome LinkTree',
+        size: '2rem',
+        color: '#ff85a1'
     },
     
     // UI State
-    currentLink: null,
-    isEditing: false,
-    autoSave: true,
-    darkMode: true
+    currentIcon: null,
+    selectedIcon: 'fas fa-link'
 };
 
-// ===== DOM ELEMENTS =====
-const elements = {
-    // Loading Screen
-    loadingScreen: document.getElementById('loading-screen'),
+// ============ INITIALIZATION ============
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 LinkTree 3D Pro MAX ULTRA v4.0.0 LOADED');
     
-    // Sidebar
-    sidebar: document.getElementById('sidebar'),
-    sidebarToggle: document.getElementById('sidebar-toggle'),
+    // Initialize all components
+    initColorPickers();
+    initSocialGrid();
+    initBackgroundGallery();
+    initButtonStyles();
+    initEventListeners();
+    addFirstLink();
+    updateStats();
     
-    // Mobile Tabs
-    mobileTabs: document.getElementById('mobile-tabs'),
+    // Auto-save state
+    loadSavedState();
+    setInterval(saveState, 10000); // Auto-save every 10 seconds
     
-    // Content Sections
-    contentSections: document.querySelectorAll('.content-section'),
-    sectionNavItems: document.querySelectorAll('.nav-item'),
-    mobileTabButtons: document.querySelectorAll('.mobile-tab'),
-    
-    // Profile Section
-    profileNameDisplay: document.getElementById('profile-name-display'),
-    profileAvatar: document.getElementById('profile-avatar'),
-    profileUploadBox: document.getElementById('profile-upload-box'),
-    profilePhotoInput: document.getElementById('profile-photo-input'),
-    profilePreview: document.getElementById('profile-preview'),
-    browsePhotoBtn: document.getElementById('browse-photo-btn'),
-    cropProfileBtn: document.getElementById('crop-profile-btn'),
-    removeProfileBtn: document.getElementById('remove-profile-btn'),
-    displayName: document.getElementById('display-name'),
-    profileBio: document.getElementById('profile-bio'),
-    verifiedBadge: document.getElementById('verified-badge'),
-    
-    // Stats
-    totalLinks: document.getElementById('total-links'),
-    totalClicks: document.getElementById('total-clicks'),
-    profileViews: document.getElementById('profile-views'),
-    activeLinks: document.getElementById('active-links'),
-    
-    // Quick Actions
-    quickAddLink: document.getElementById('quick-add-link'),
-    quickUpload: document.getElementById('quick-upload'),
-    quickPreview: document.getElementById('quick-preview'),
-    quickExport: document.getElementById('quick-export'),
-    quickReset: document.getElementById('quick-reset'),
-    quickShare: document.getElementById('quick-share'),
-    
-    // Links Section
-    addNewLink: document.getElementById('add-new-link'),
-    createFolder: document.getElementById('create-folder'),
-    importLinks: document.getElementById('import-links'),
-    exportLinks: document.getElementById('export-links'),
-    autoSort: document.getElementById('auto-sort'),
-    searchLinks: document.getElementById('search-links'),
-    linksList: document.getElementById('links-list'),
-    recentLinksList: document.getElementById('recent-links-list'),
-    
-    // Link Modal
-    linkModal: document.getElementById('link-modal'),
-    closeLinkModal: document.getElementById('close-link-modal'),
-    linkTitle: document.getElementById('link-title'),
-    linkUrl: document.getElementById('link-url'),
-    selectIconBtn: document.getElementById('select-icon-btn'),
-    selectedIcon: document.getElementById('selected-icon'),
-    linkDescription: document.getElementById('link-description'),
-    scheduleToggle: document.getElementById('schedule-toggle'),
-    scheduleTimes: document.getElementById('schedule-times'),
-    startTime: document.getElementById('start-time'),
-    endTime: document.getElementById('end-time'),
-    linkEnabled: document.getElementById('link-enabled'),
-    cancelLinkBtn: document.getElementById('cancel-link-btn'),
-    saveLinkBtn: document.getElementById('save-link-btn'),
-    
-    // Design Section
-    designTabBtns: document.querySelectorAll('.design-tab-btn'),
-    designTabPanes: document.querySelectorAll('.tab-pane'),
-    
-    // Colors Tab
-    colorPresets: document.querySelectorAll('.preset-option'),
-    primaryColor: document.getElementById('primary-color'),
-    secondaryColor: document.getElementById('secondary-color'),
-    textColor: document.getElementById('text-color'),
-    bgColor: document.getElementById('bg-color'),
-    applyColors: document.getElementById('apply-colors'),
-    
-    // Fonts Tab
-    fontFamily: document.getElementById('font-family'),
-    titleSize: document.getElementById('title-size'),
-    titleSizeValue: document.getElementById('title-size-value'),
-    bodySize: document.getElementById('body-size'),
-    bodySizeValue: document.getElementById('body-size-value'),
-    weightButtons: document.querySelectorAll('.weight-btn'),
-    
-    // Background Tab
-    bgTypeButtons: document.querySelectorAll('.bg-type-btn'),
-    bgColorOptions: document.getElementById('bg-color-options'),
-    bgGradientOptions: document.getElementById('bg-gradient-options'),
-    bgImageOptions: document.getElementById('bg-image-options'),
-    gradientPresets: document.querySelectorAll('.gradient-preset'),
-    bgSolidColor: document.getElementById('bg-solid-color'),
-    bgUploadBox: document.getElementById('bg-upload-box'),
-    bgImageInput: document.getElementById('bg-image-input'),
-    bgPosition: document.getElementById('bg-position'),
-    
-    // Buttons Tab
-    styleOptions: document.querySelectorAll('.style-option'),
-    hoverEffect: document.getElementById('hover-effect'),
-    shadowEffect: document.getElementById('shadow-effect'),
-    gradientEffect: document.getElementById('gradient-effect'),
-    
-    // Design Preview
-    designPreview: document.getElementById('design-preview'),
-    
-    // Social Section
-    socialInputs: document.querySelectorAll('.social-input'),
-    socialAnimation: document.getElementById('social-animation'),
-    socialNewTab: document.getElementById('social-new-tab'),
-    socialTooltips: document.getElementById('social-tooltips'),
-    
-    // Analytics Section
-    totalViews: document.getElementById('total-views'),
-    totalClicksAnalytics: document.getElementById('total-clicks-analytics'),
-    uniqueVisitors: document.getElementById('unique-visitors'),
-    clickRate: document.getElementById('click-rate'),
-    clicksChart: document.getElementById('clicks-chart'),
-    topLinksList: document.getElementById('top-links-list'),
-    exportAnalytics: document.getElementById('export-analytics'),
-    resetAnalytics: document.getElementById('reset-analytics'),
-    
-    // Advanced Section
-    generateQr: document.getElementById('generate-qr'),
-    editCss: document.getElementById('edit-css'),
-    mobilePreviewBtn: document.getElementById('mobile-preview'),
-    shareButton: document.getElementById('share-button'),
-    customFooter: document.getElementById('custom-footer'),
-    hideLogo: document.getElementById('hide-logo'),
-    metaTitle: document.getElementById('meta-title'),
-    metaDescription: document.getElementById('meta-description'),
-    faviconUrl: document.getElementById('favicon-url'),
-    
-    // Preview Section
-    deviceButtons: document.querySelectorAll('.device-btn'),
-    refreshPreview: document.getElementById('refresh-preview'),
-    fullscreenPreview: document.getElementById('fullscreen-preview'),
-    previewDevice: document.getElementById('preview-device'),
-    livePreview: document.getElementById('live-preview'),
-    pageSize: document.getElementById('page-size'),
-    loadTime: document.getElementById('load-time'),
-    mobileScore: document.getElementById('mobile-score'),
-    seoScore: document.getElementById('seo-score'),
-    
-    // Export Section
-    exportHtml: document.getElementById('export-html'),
-    viewSource: document.getElementById('view-source'),
-    exportJson: document.getElementById('export-json'),
-    importJson: document.getElementById('import-json'),
-    generateShareLink: document.getElementById('generate-share-link'),
-    codeTabs: document.querySelectorAll('.code-tab'),
-    htmlCode: document.getElementById('html-code'),
-    cssCode: document.getElementById('css-code'),
-    jsCode: document.getElementById('js-code'),
-    copyAllCode: document.getElementById('copy-all-code'),
-    downloadAllCode: document.getElementById('download-all-code'),
-    
-    // Modals
-    qrModal: document.getElementById('qr-modal'),
-    closeQrModal: document.getElementById('close-qr-modal'),
-    qrCode: document.getElementById('qr-code'),
-    downloadQr: document.getElementById('download-qr'),
-    copyQr: document.getElementById('copy-qr'),
-    
-    cssModal: document.getElementById('css-modal'),
-    closeCssModal: document.getElementById('close-css-modal'),
-    customCss: document.getElementById('custom-css'),
-    cancelCss: document.getElementById('cancel-css'),
-    saveCss: document.getElementById('save-css'),
-    
-    mobileModal: document.getElementById('mobile-modal'),
-    closeMobileModal: document.getElementById('close-mobile-modal'),
-    mobilePreviewFrame: document.getElementById('mobile-preview-frame'),
-    
-    sourceModal: document.getElementById('source-modal'),
-    closeSourceModal: document.getElementById('close-source-modal'),
-    sourceTabs: document.querySelectorAll('.source-tab'),
-    sourceHtml: document.getElementById('source-html'),
-    sourceCss: document.getElementById('source-css'),
-    sourceJs: document.getElementById('source-js'),
-    copySource: document.getElementById('copy-source'),
-    downloadSource: document.getElementById('download-source'),
-    
-    // Footer
-    autoSaveStatus: document.getElementById('auto-save-status'),
-    
-    // Toast Container
-    toastContainer: document.getElementById('toast-container')
-};
+    console.log('✅ All systems ready!');
+});
 
-// ===== UTILITY FUNCTIONS =====
-class Utils {
-    // Show Toast Notification
-    static showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
+// ============ INIT FUNCTIONS ============
+function initColorPickers() {
+    // Text colors
+    const textColors = [
+        '#ffffff', '#000000', '#ff85a1', '#85a7ff', '#85ffc7', 
+        '#c285ff', '#ffb385', '#ff4757', '#00d2ff', '#ffd700',
+        '#00ff88', '#ff3366', '#9933ff', '#00ffff', '#ff00ff'
+    ];
+    
+    createColorPicker('text-color-picker', textColors, state.colors.text, (color) => {
+        state.colors.text = color;
+        generatePreview();
+        showToast('Text color updated!', 'success');
+    });
+    
+    // Border colors
+    const borderColors = [
+        '#ff85a1', '#85a7ff', '#85ffc7', '#ffd700', '#ff3366',
+        '#00ff88', '#9933ff', '#00ffff', '#ffffff', '#000000',
+        '#ff00ff', '#00ff00', '#0000ff', '#ffff00', '#ff8800'
+    ];
+    
+    createColorPicker('border-color-picker', borderColors, state.profileBorder.color, (color) => {
+        state.profileBorder.color = color;
+        updateProfileBorderPreview();
+        generatePreview();
+        showToast('Border color updated!', 'success');
+    });
+    
+    // Background colors
+    const bgColors = [
+        '#0d0a0b', '#161013', '#1a1a2e', '#16213e', '#0f3460',
+        '#1e5128', '#4e3620', '#3d0000', '#2d4059', '#1c6758'
+    ];
+    
+    createColorPicker('bg-color-picker', bgColors, '#0d0a0b', (color) => {
+        document.documentElement.style.setProperty('--bg-primary', color);
+        generatePreview();
+        showToast('Background color updated!', 'success');
+    });
+}
+
+function createColorPicker(containerId, colors, selectedColor, callback) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    
+    colors.forEach(color => {
+        const div = document.createElement('div');
+        div.className = 'color-option';
+        div.style.background = color;
+        div.title = color;
         
-        const icons = {
-            success: 'fas fa-check-circle',
-            error: 'fas fa-times-circle',
-            warning: 'fas fa-exclamation-triangle',
-            info: 'fas fa-info-circle'
-        };
+        if (color === selectedColor) {
+            div.classList.add('active');
+        }
         
-        toast.innerHTML = `
-            <i class="toast-icon ${icons[type]}"></i>
-            <div class="toast-content">
-                <div class="toast-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
-                <div class="toast-message">${message}</div>
-            </div>
+        div.addEventListener('click', () => {
+            container.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+            div.classList.add('active');
+            callback(color);
+        });
+        
+        container.appendChild(div);
+    });
+}
+
+function initSocialGrid() {
+    const platforms = [
+        // Social Media
+        { name: 'WhatsApp', icon: 'fab fa-whatsapp', color: '#25D366' },
+        { name: 'Instagram', icon: 'fab fa-instagram', color: '#E4405F' },
+        { name: 'YouTube', icon: 'fab fa-youtube', color: '#FF0000' },
+        { name: 'TikTok', icon: 'fab fa-tiktok', color: '#000000' },
+        { name: 'Telegram', icon: 'fab fa-telegram', color: '#0088CC' },
+        { name: 'GitHub', icon: 'fab fa-github', color: '#181717' },
+        { name: 'Twitter/X', icon: 'fab fa-twitter', color: '#1DA1F2' },
+        { name: 'Facebook', icon: 'fab fa-facebook', color: '#1877F2' },
+        { name: 'LinkedIn', icon: 'fab fa-linkedin', color: '#0A66C2' },
+        { name: 'Discord', icon: 'fab fa-discord', color: '#5865F2' },
+        { name: 'Snapchat', icon: 'fab fa-snapchat', color: '#FFFC00' },
+        { name: 'Reddit', icon: 'fab fa-reddit', color: '#FF4500' },
+        { name: 'Pinterest', icon: 'fab fa-pinterest', color: '#E60023' },
+        { name: 'Twitch', icon: 'fab fa-twitch', color: '#9146FF' },
+        { name: 'Spotify', icon: 'fab fa-spotify', color: '#1DB954' },
+        { name: 'Apple Music', icon: 'fab fa-apple', color: '#000000' },
+        { name: 'SoundCloud', icon: 'fab fa-soundcloud', color: '#FF3300' },
+        { name: 'Dribbble', icon: 'fab fa-dribbble', color: '#EA4C89' },
+        { name: 'Behance', icon: 'fab fa-behance', color: '#1769FF' },
+        { name: 'Medium', icon: 'fab fa-medium', color: '#000000' },
+        
+        // Website & Apps
+        { name: 'Website', icon: 'fas fa-globe', color: '#4285F4' },
+        { name: 'Portfolio', icon: 'fas fa-briefcase', color: '#34A853' },
+        { name: 'Blog', icon: 'fas fa-blog', color: '#FBBC05' },
+        { name: 'Shop', icon: 'fas fa-shopping-cart', color: '#EA4335' },
+        { name: 'Store', icon: 'fas fa-store', color: '#FF6B35' },
+        { name: 'Etsy', icon: 'fab fa-etsy', color: '#F56400' },
+        { name: 'Amazon', icon: 'fab fa-amazon', color: '#FF9900' },
+        { name: 'PayPal', icon: 'fab fa-paypal', color: '#003087' },
+        { name: 'Cash App', icon: 'fas fa-money-bill-wave', color: '#00D632' },
+        
+        // Contact
+        { name: 'Email', icon: 'fas fa-envelope', color: '#D44638' },
+        { name: 'Phone', icon: 'fas fa-phone', color: '#34A853' },
+        { name: 'SMS', icon: 'fas fa-comment-sms', color: '#25D366' },
+        { name: 'Location', icon: 'fas fa-map-marker-alt', color: '#4285F4' },
+        { name: 'Calendar', icon: 'fas fa-calendar', color: '#EA4335' },
+        { name: 'Event', icon: 'fas fa-calendar-alt', color: '#FBBC05' },
+        
+        // Files & Docs
+        { name: 'PDF', icon: 'fas fa-file-pdf', color: '#FF0000' },
+        { name: 'Document', icon: 'fas fa-file-alt', color: '#4285F4' },
+        { name: 'Spreadsheet', icon: 'fas fa-file-excel', color: '#34A853' },
+        { name: 'Presentation', icon: 'fas fa-file-powerpoint', color: '#EA4335' },
+        { name: 'Image', icon: 'fas fa-file-image', color: '#FBBC05' },
+        { name: 'Video', icon: 'fas fa-file-video', color: '#9933CC' },
+        { name: 'Audio', icon: 'fas fa-file-audio', color: '#FF6600' },
+        { name: 'Zip', icon: 'fas fa-file-archive', color: '#666666' },
+        { name: 'Code', icon: 'fas fa-file-code', color: '#000000' },
+        
+        // Creative
+        { name: 'Camera', icon: 'fas fa-camera', color: '#000000' },
+        { name: 'Music', icon: 'fas fa-music', color: '#FF3366' },
+        { name: 'Video', icon: 'fas fa-video', color: '#9933FF' },
+        { name: 'Paint', icon: 'fas fa-paint-brush', color: '#FFAA00' },
+        { name: 'Photo', icon: 'fas fa-image', color: '#00CCFF' },
+        { name: 'Design', icon: 'fas fa-palette', color: '#FF66CC' },
+        { name: 'Game', icon: 'fas fa-gamepad', color: '#00FF88' },
+        
+        // Transportation
+        { name: 'Car', icon: 'fas fa-car', color: '#FF3333' },
+        { name: 'Plane', icon: 'fas fa-plane', color: '#3366FF' },
+        { name: 'Train', icon: 'fas fa-train', color: '#FF6600' },
+        { name: 'Bus', icon: 'fas fa-bus', color: '#00CC66' },
+        { name: 'Bike', icon: 'fas fa-bicycle', color: '#FFAA00' },
+        { name: 'Walking', icon: 'fas fa-walking', color: '#9933FF' },
+        
+        // Food & Drink
+        { name: 'Food', icon: 'fas fa-utensils', color: '#FF6666' },
+        { name: 'Coffee', icon: 'fas fa-coffee', color: '#996633' },
+        { name: 'Drink', icon: 'fas fa-glass-martini', color: '#00CCFF' },
+        { name: 'Pizza', icon: 'fas fa-pizza-slice', color: '#FF6600' },
+        { name: 'Burger', icon: 'fas fa-hamburger', color: '#FF3300' },
+        
+        // Health & Fitness
+        { name: 'Heart', icon: 'fas fa-heart', color: '#FF3366' },
+        { name: 'Medical', icon: 'fas fa-heartbeat', color: '#FF0000' },
+        { name: 'Hospital', icon: 'fas fa-hospital', color: '#FFFFFF', style: 'background: #FF3366;' },
+        { name: 'Fitness', icon: 'fas fa-dumbbell', color: '#00FF88' },
+        { name: 'Running', icon: 'fas fa-running', color: '#FFAA00' },
+        { name: 'Swimming', icon: 'fas fa-swimmer', color: '#3366FF' },
+        
+        // Education
+        { name: 'School', icon: 'fas fa-school', color: '#9933FF' },
+        { name: 'University', icon: 'fas fa-university', color: '#FF6600' },
+        { name: 'Book', icon: 'fas fa-book', color: '#FFAA00' },
+        { name: 'Graduation', icon: 'fas fa-graduation-cap', color: '#00CCFF' },
+        { name: 'Science', icon: 'fas fa-flask', color: '#00FF88' },
+        { name: 'Math', icon: 'fas fa-calculator', color: '#FF3366' },
+        
+        // Business
+        { name: 'Business', icon: 'fas fa-briefcase', color: '#996633' },
+        { name: 'Money', icon: 'fas fa-money-bill-wave', color: '#00CC66' },
+        { name: 'Chart', icon: 'fas fa-chart-line', color: '#3366FF' },
+        { name: 'Growth', icon: 'fas fa-chart-bar', color: '#FF6600' },
+        { name: 'Target', icon: 'fas fa-bullseye', color: '#FF3366' },
+        { name: 'Lightbulb', icon: 'fas fa-lightbulb', color: '#FFAA00' },
+        
+        // Technology
+        { name: 'Code', icon: 'fas fa-code', color: '#000000' },
+        { name: 'Laptop', icon: 'fas fa-laptop', color: '#666666' },
+        { name: 'Mobile', icon: 'fas fa-mobile-alt', color: '#333333' },
+        { name: 'Database', icon: 'fas fa-database', color: '#3366FF' },
+        { name: 'Server', icon: 'fas fa-server', color: '#00CC66' },
+        { name: 'Cloud', icon: 'fas fa-cloud', color: '#00CCFF' },
+        { name: 'WiFi', icon: 'fas fa-wifi', color: '#FF6600' },
+        { name: 'Bluetooth', icon: 'fab fa-bluetooth', color: '#3366FF' },
+        
+        // Weather
+        { name: 'Sun', icon: 'fas fa-sun', color: '#FFAA00' },
+        { name: 'Moon', icon: 'fas fa-moon', color: '#6666FF' },
+        { name: 'Cloud', icon: 'fas fa-cloud', color: '#CCCCCC' },
+        { name: 'Rain', icon: 'fas fa-cloud-rain', color: '#3366FF' },
+        { name: 'Snow', icon: 'fas fa-snowflake', color: '#FFFFFF', style: 'background: #00CCFF;' },
+        { name: 'Wind', icon: 'fas fa-wind', color: '#66CCFF' },
+        
+        // Animals
+        { name: 'Cat', icon: 'fas fa-cat', color: '#FF6600' },
+        { name: 'Dog', icon: 'fas fa-dog', color: '#996633' },
+        { name: 'Fish', icon: 'fas fa-fish', color: '#3366FF' },
+        { name: 'Bird', icon: 'fas fa-dove', color: '#FFFFFF', style: 'background: #FFAA00;' },
+        { name: 'Horse', icon: 'fas fa-horse', color: '#993300' },
+        
+        // Travel
+        { name: 'Map', icon: 'fas fa-map', color: '#FF3333' },
+        { name: 'Compass', icon: 'fas fa-compass', color: '#FF6600' },
+        { name: 'Mountain', icon: 'fas fa-mountain', color: '#996633' },
+        { name: 'Tree', icon: 'fas fa-tree', color: '#00CC66' },
+        { name: 'Camping', icon: 'fas fa-campground', color: '#993300' },
+        { name: 'Beach', icon: 'fas fa-umbrella-beach', color: '#00CCFF' },
+        
+        // Time
+        { name: 'Clock', icon: 'fas fa-clock', color: '#000000' },
+        { name: 'Stopwatch', icon: 'fas fa-stopwatch', color: '#FF3366' },
+        { name: 'Hourglass', icon: 'fas fa-hourglass', color: '#996633' },
+        { name: 'Calendar', icon: 'fas fa-calendar-day', color: '#FF6600' },
+        { name: 'Birthday', icon: 'fas fa-birthday-cake', color: '#FF3366' },
+        
+        // Security
+        { name: 'Lock', icon: 'fas fa-lock', color: '#FF3333' },
+        { name: 'Key', icon: 'fas fa-key', color: '#FFAA00' },
+        { name: 'Shield', icon: 'fas fa-shield-alt', color: '#3366FF' },
+        { name: 'Fingerprint', icon: 'fas fa-fingerprint', color: '#9933FF' },
+        
+        // Shopping
+        { name: 'Shopping Bag', icon: 'fas fa-shopping-bag', color: '#FF3366' },
+        { name: 'Gift', icon: 'fas fa-gift', color: '#FF3333' },
+        { name: 'Tag', icon: 'fas fa-tag', color: '#00CC66' },
+        { name: 'Ticket', icon: 'fas fa-ticket-alt', color: '#FF6600' },
+        { name: 'Coupon', icon: 'fas fa-receipt', color: '#9933FF' },
+        
+        // Communication
+        { name: 'Chat', icon: 'fas fa-comment', color: '#3366FF' },
+        { name: 'Comments', icon: 'fas fa-comments', color: '#00CCFF' },
+        { name: 'Message', icon: 'fas fa-envelope-open-text', color: '#FF6600' },
+        { name: 'Notification', icon: 'fas fa-bell', color: '#FFAA00' },
+        { name: 'Announcement', icon: 'fas fa-bullhorn', color: '#FF3366' },
+        
+        // Tools
+        { name: 'Toolbox', icon: 'fas fa-toolbox', color: '#996633' },
+        { name: 'Wrench', icon: 'fas fa-wrench', color: '#666666' },
+        { name: 'Screwdriver', icon: 'fas fa-screwdriver', color: '#333333' },
+        { name: 'Hammer', icon: 'fas fa-hammer', color: '#993300' },
+        { name: 'Pencil', icon: 'fas fa-pencil-alt', color: '#3366FF' },
+        { name: 'Eraser', icon: 'fas fa-eraser', color: '#FFFFFF', style: 'background: #FF3366;' },
+        
+        // Arrows & Navigation
+        { name: 'Arrow Up', icon: 'fas fa-arrow-up', color: '#00CC66' },
+        { name: 'Arrow Down', icon: 'fas fa-arrow-down', color: '#FF3366' },
+        { name: 'Arrow Left', icon: 'fas fa-arrow-left', color: '#FFAA00' },
+        { name: 'Arrow Right', icon: 'fas fa-arrow-right', color: '#3366FF' },
+        { name: 'Home', icon: 'fas fa-home', color: '#FF6600' },
+        { name: 'Sign Out', icon: 'fas fa-sign-out-alt', color: '#FF3333' },
+        { name: 'Sign In', icon: 'fas fa-sign-in-alt', color: '#00CC66' },
+        
+        // Miscellaneous
+        { name: 'Star', icon: 'fas fa-star', color: '#FFAA00' },
+        { name: 'Heart', icon: 'fas fa-heart', color: '#FF3366' },
+        { name: 'Thumbs Up', icon: 'fas fa-thumbs-up', color: '#00CC66' },
+        { name: 'Fire', icon: 'fas fa-fire', color: '#FF6600' },
+        { name: 'Magic', icon: 'fas fa-magic', color: '#9933FF' },
+        { name: 'Rocket', icon: 'fas fa-rocket', color: '#FF3366' },
+        { name: 'Crown', icon: 'fas fa-crown', color: '#FFAA00' },
+        { name: 'Trophy', icon: 'fas fa-trophy', color: '#FFAA00' },
+        { name: 'Medal', icon: 'fas fa-medal', color: '#FFAA00' },
+        { name: 'Flag', icon: 'fas fa-flag', color: '#FF3333' },
+        { name: 'Gem', icon: 'fas fa-gem', color: '#00CCFF' },
+        { name: 'Diamond', icon: 'fas fa-gem', color: '#00FFFF' }
+    ];
+    
+    const container = document.getElementById('social-media-grid');
+    platforms.forEach(platform => {
+        const div = document.createElement('div');
+        div.className = 'social-icon';
+        div.innerHTML = `<i class="${platform.icon}"></i><span>${platform.name}</span>`;
+        
+        if (platform.style) {
+            div.style = platform.style;
+        }
+        
+        div.addEventListener('click', () => {
+            addLink({
+                title: platform.name,
+                url: '',
+                icon: platform.icon,
+                description: ''
+            });
+            showToast(`${platform.name} added!`, 'success');
+        });
+        
+        container.appendChild(div);
+    });
+}
+
+function initBackgroundGallery() {
+    const backgrounds = [
+        { name: 'Galaxy', icon: 'fas fa-star', gradient: 'linear-gradient(135deg, #000428 0%, #004e92 100%)' },
+        { name: 'Nebula', icon: 'fas fa-cloud-moon', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+        { name: 'Sunset', icon: 'fas fa-sun', gradient: 'linear-gradient(135deg, #ff6b6b 0%, #ffd166 100%)' },
+        { name: 'Dark', icon: 'fas fa-moon', color: '#000000' },
+        { name: 'Ocean', icon: 'fas fa-water', gradient: 'linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)' },
+        { name: 'Forest', icon: 'fas fa-tree', gradient: 'linear-gradient(135deg, #1e9600 0%, #fff200 100%)' },
+        { name: 'Fire', icon: 'fas fa-fire', gradient: 'linear-gradient(135deg, #f46b45 0%, #eea849 100%)' },
+        { name: 'Ice', icon: 'fas fa-snowflake', gradient: 'linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%)' },
+        { name: 'Neon', icon: 'fas fa-lightbulb', gradient: 'linear-gradient(135deg, #ff00ff 0%, #00ffff 100%)' },
+        { name: 'Rainbow', icon: 'fas fa-rainbow', gradient: 'linear-gradient(135deg, #ff0000, #ff9900, #ffff00, #00ff00, #00ffff, #0000ff, #9900ff)' },
+        { name: 'Space', icon: 'fas fa-rocket', gradient: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)' },
+        { name: 'Candy', icon: 'fas fa-candy-cane', gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)' }
+    ];
+    
+    const container = document.getElementById('bg-gallery-main');
+    backgrounds.forEach((bg, index) => {
+        const div = document.createElement('div');
+        div.className = 'bg-option' + (index === 0 ? ' active' : '');
+        div.style.background = bg.gradient || bg.color;
+        div.setAttribute('data-bg-type', bg.name.toLowerCase());
+        div.setAttribute('title', bg.name);
+        
+        div.innerHTML = `<i class="${bg.icon}"></i>`;
+        
+        div.addEventListener('click', () => {
+            container.querySelectorAll('.bg-option').forEach(el => el.classList.remove('active'));
+            div.classList.add('active');
+            state.background.type = bg.name.toLowerCase();
+            generatePreview();
+            showToast(`${bg.name} background selected!`, 'success');
+        });
+        
+        container.appendChild(div);
+    });
+}
+
+function initButtonStyles() {
+    const buttonStyles = [
+        { name: 'Pink', color: 'pink', gradient: 'linear-gradient(135deg, var(--pink-neon), #ff6b9d)' },
+        { name: 'Blue', color: 'blue', gradient: 'linear-gradient(135deg, var(--accent-blue), #6b8fff)' },
+        { name: 'Green', color: 'green', gradient: 'linear-gradient(135deg, var(--accent-green), #6bffb8)' },
+        { name: 'Purple', color: 'purple', gradient: 'linear-gradient(135deg, var(--accent-purple), #9933ff)' },
+        { name: 'Orange', color: 'orange', gradient: 'linear-gradient(135deg, var(--accent-orange), #ff9d6b)' },
+        { name: 'Red', color: 'red', gradient: 'linear-gradient(135deg, var(--accent-red), #ff3366)' },
+        { name: 'Yellow', color: 'yellow', gradient: 'linear-gradient(135deg, var(--accent-yellow), #ffd700)' },
+        { name: 'Teal', color: 'teal', gradient: 'linear-gradient(135deg, var(--accent-teal), #00ffcc)' },
+        { name: 'Cyan', color: 'cyan', gradient: 'linear-gradient(135deg, var(--accent-cyan), #00ffff)' },
+        { name: 'Black', color: 'black', gradient: 'linear-gradient(135deg, #000000, #333333)' },
+        { name: 'White', color: 'white', gradient: 'linear-gradient(135deg, #ffffff, #cccccc)', textColor: '#000000' },
+        { name: 'Gold', color: 'gold', gradient: 'linear-gradient(135deg, #ffd700, #ffaa00)' }
+    ];
+    
+    const container = document.querySelector('.button-style-grid');
+    buttonStyles.forEach(style => {
+        const div = document.createElement('div');
+        div.className = 'button-style' + (style.color === 'pink' ? ' active' : '');
+        div.setAttribute('data-button-style', style.color);
+        div.setAttribute('title', style.name);
+        
+        div.innerHTML = `
+            <i class="fas fa-cube"></i>
+            <span>${style.name}</span>
         `;
         
-        elements.toastContainer.appendChild(toast);
+        if (style.textColor) {
+            div.style.color = style.textColor;
+        }
         
-        // Remove toast after 5 seconds
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => toast.remove(), 300);
-        }, 5000);
+        div.addEventListener('click', () => {
+            container.querySelectorAll('.button-style').forEach(el => el.classList.remove('active'));
+            div.classList.add('active');
+            state.colors.button = style.color;
+            generatePreview();
+            showToast(`Button style: ${style.name}`, 'success');
+        });
+        
+        container.appendChild(div);
+    });
+}
+
+// ============ EVENT LISTENERS ============
+function initEventListeners() {
+    // Mobile tabs
+    document.querySelectorAll('.mobile-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+            document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.mobile-tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            if (tabName === 'preview') {
+                generatePreview();
+            }
+        });
+    });
+    
+    // Upload tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const uploadType = btn.dataset.upload;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.upload-tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`upload-${uploadType}`).classList.add('active');
+        });
+    });
+    
+    // File uploads
+    document.getElementById('upload-zone-image').addEventListener('click', () => document.getElementById('file-input-image').click());
+    document.getElementById('upload-zone-video').addEventListener('click', () => document.getElementById('file-input-video').click());
+    document.getElementById('upload-zone-gif').addEventListener('click', () => document.getElementById('file-input-gif').click());
+    document.getElementById('bg-video-upload-zone').addEventListener('click', () => document.getElementById('bg-video-upload').click());
+    document.getElementById('bg-back-upload-zone').addEventListener('click', () => document.getElementById('bg-back-upload').click());
+    
+    // Browse buttons
+    document.getElementById('browse-image-btn').addEventListener('click', () => document.getElementById('file-input-image').click());
+    document.getElementById('browse-video-btn').addEventListener('click', () => document.getElementById('file-input-video').click());
+    document.getElementById('browse-gif-btn').addEventListener('click', () => document.getElementById('file-input-gif').click());
+    document.getElementById('bg-video-browse-btn').addEventListener('click', () => document.getElementById('bg-video-upload').click());
+    
+    // File inputs
+    document.getElementById('file-input-image').addEventListener('change', (e) => handleFileUpload(e, 'image'));
+    document.getElementById('file-input-video').addEventListener('change', (e) => handleFileUpload(e, 'video'));
+    document.getElementById('file-input-gif').addEventListener('change', (e) => handleFileUpload(e, 'gif'));
+    document.getElementById('bg-video-upload').addEventListener('change', handleBgVideoUpload);
+    document.getElementById('bg-back-upload').addEventListener('change', handleBgUpload);
+    
+    // URL loading
+    document.getElementById('load-url-btn').addEventListener('click', loadFromURL);
+    document.getElementById('test-url-btn').addEventListener('click', testURL);
+    
+    // Profile actions
+    document.getElementById('edit-profile-btn').addEventListener('click', editProfile);
+    document.getElementById('crop-profile-btn').addEventListener('click', cropProfile);
+    document.getElementById('filter-profile-btn').addEventListener('click', filterProfile);
+    document.getElementById('remove-profile-btn').addEventListener('click', removeProfileMedia);
+    
+    // Link management
+    document.getElementById('add-link-btn').addEventListener('click', addCustomLink);
+    document.getElementById('quick-add-btn').addEventListener('click', quickAddLink);
+    document.getElementById('import-links-btn').addEventListener('click', importLinks);
+    document.getElementById('clear-links-btn').addEventListener('click', clearLinks);
+    
+    // Generation & export
+    document.getElementById('generate-btn').addEventListener('click', generatePreview);
+    document.getElementById('start-preview-btn').addEventListener('click', generatePreview);
+    document.getElementById('view-code-btn').addEventListener('click', showCodeModal);
+    document.getElementById('download-btn').addEventListener('click', downloadHTML);
+    document.getElementById('save-project-btn').addEventListener('click', saveProject);
+    document.getElementById('share-btn').addEventListener('click', shareProject);
+    document.getElementById('reset-btn').addEventListener('click', resetProject);
+    
+    // Modals
+    document.getElementById('close-modal-btn').addEventListener('click', closeCodeModal);
+    document.getElementById('close-modal-btn2').addEventListener('click', closeCodeModal);
+    document.getElementById('copy-code-btn').addEventListener('click', copyCode);
+    document.getElementById('download-code-btn').addEventListener('click', downloadCode);
+    
+    // Icon selector
+    document.getElementById('open-icon-selector').addEventListener('click', openIconSelector);
+    document.getElementById('close-icon-modal-btn').addEventListener('click', closeIconModal);
+    document.getElementById('close-icon-modal-btn2').addEventListener('click', closeIconModal);
+    document.getElementById('select-icon-btn').addEventListener('click', selectIcon);
+    document.getElementById('icon-search').addEventListener('input', searchIcons);
+    
+    // Background video controls
+    document.getElementById('bg-video-play').addEventListener('click', () => {
+        const video = document.getElementById('video-bg-preview');
+        video.play();
+        showToast('Background video playing', 'success');
+    });
+    
+    document.getElementById('bg-video-pause').addEventListener('click', () => {
+        const video = document.getElementById('video-bg-preview');
+        video.pause();
+        showToast('Background video paused', 'warning');
+    });
+    
+    document.getElementById('bg-video-stop').addEventListener('click', () => {
+        const video = document.getElementById('video-bg-preview');
+        video.pause();
+        video.currentTime = 0;
+        showToast('Background video stopped', 'warning');
+    });
+    
+    document.getElementById('bg-video-remove').addEventListener('click', () => {
+        state.background.video = null;
+        document.getElementById('video-bg-preview-container').style.display = 'none';
+        document.getElementById('video-bg-preview').src = '';
+        generatePreview();
+        showToast('Background video removed', 'success');
+    });
+    
+    // Camera
+    document.getElementById('start-camera-btn').addEventListener('click', startCamera);
+    document.getElementById('stop-camera-btn').addEventListener('click', stopCamera);
+    document.getElementById('capture-btn').addEventListener('click', capturePhoto);
+    
+    // Color pickers
+    document.getElementById('custom-primary-color').addEventListener('change', (e) => {
+        state.colors.primary = e.target.value;
+    });
+    
+    document.getElementById('custom-secondary-color').addEventListener('change', (e) => {
+        state.colors.secondary = e.target.value;
+    });
+    
+    document.getElementById('custom-accent-color').addEventListener('change', (e) => {
+        state.colors.accent = e.target.value;
+    });
+    
+    document.getElementById('apply-custom-colors').addEventListener('click', applyCustomColors);
+    
+    // Title customization
+    document.getElementById('update-title-btn').addEventListener('click', () => {
+        state.title.text = document.getElementById('page-title').value;
+        generatePreview();
+        showToast('Page title updated!', 'success');
+    });
+    
+    document.getElementById('title-size').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('title-size-value').textContent = value + 'rem';
+        state.title.size = value + 'rem';
+        generatePreview();
+    });
+    
+    document.getElementById('title-color').addEventListener('change', (e) => {
+        state.title.color = e.target.value;
+        generatePreview();
+    });
+    
+    // Border controls
+    document.getElementById('border-width').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('border-width-value').textContent = value + 'px';
+        state.profileBorder.width = parseInt(value);
+        updateProfileBorderPreview();
+        generatePreview();
+    });
+    
+    document.getElementById('border-custom-color').addEventListener('change', (e) => {
+        state.profileBorder.color = e.target.value;
+        updateProfileBorderPreview();
+        generatePreview();
+        showToast('Border color updated!', 'success');
+    });
+    
+    document.getElementById('border-radius').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('border-radius-value').textContent = value + 'px';
+        state.profileBorder.radius = parseInt(value);
+        updateProfileBorderPreview();
+        generatePreview();
+    });
+    
+    document.getElementById('border-shadow').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('border-shadow-value').textContent = value + 'px';
+        state.profileBorder.shadow = parseInt(value);
+        updateProfileBorderPreview();
+        generatePreview();
+    });
+    
+    // Border styles
+    document.querySelectorAll('.border-style').forEach(style => {
+        style.addEventListener('click', (e) => {
+            document.querySelectorAll('.border-style').forEach(s => s.classList.remove('active'));
+            style.classList.add('active');
+            state.profileBorder.style = style.dataset.style;
+            updateProfileBorderPreview();
+            generatePreview();
+            showToast(`Border style: ${style.dataset.style}`, 'success');
+        });
+    });
+    
+    // Border radius presets
+    document.querySelectorAll('[data-radius]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const radius = e.target.dataset.radius;
+            document.getElementById('border-radius').value = radius;
+            document.getElementById('border-radius-value').textContent = radius + 'px';
+            state.profileBorder.radius = parseInt(radius);
+            updateProfileBorderPreview();
+            generatePreview();
+            showToast(`Border radius: ${radius}px`, 'success');
+        });
+    });
+    
+    // Background effects
+    document.getElementById('blur-effect').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('blur-value').textContent = value + 'px';
+        state.background.blur = value;
+        generatePreview();
+    });
+    
+    document.getElementById('opacity-effect').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('opacity-value').textContent = value + '%';
+        state.background.opacity = value;
+        generatePreview();
+    });
+    
+    document.getElementById('saturation-effect').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('saturation-value').textContent = value + '%';
+        state.glassEffects.saturation = value;
+        generatePreview();
+    });
+    
+    // Glass effects
+    document.getElementById('glass-opacity').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('glass-opacity-value').textContent = value + '%';
+        state.glassEffects.opacity = value;
+        generatePreview();
+    });
+    
+    document.getElementById('glass-blur').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('glass-blur-value').textContent = value + 'px';
+        state.glassEffects.blur = value;
+        generatePreview();
+    });
+    
+    document.getElementById('glass-brightness').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('glass-brightness-value').textContent = value + '%';
+        state.glassEffects.brightness = value;
+        generatePreview();
+    });
+    
+    // Background text buttons
+    document.querySelectorAll('[data-bg-text]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            state.colors.background = e.target.dataset.bgText;
+            generatePreview();
+            showToast(`Text background: ${e.target.dataset.bgText}`, 'success');
+        });
+    });
+    
+    // Glass presets
+    document.querySelectorAll('[data-preset]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const preset = e.target.dataset.preset;
+            let opacity = 85, blur = 8, brightness = 100, saturation = 100;
+            
+            switch(preset) {
+                case 'frosted': opacity = 70; blur = 15; brightness = 110; saturation = 120; break;
+                case 'clear': opacity = 90; blur = 5; brightness = 100; saturation = 100; break;
+                case 'dark': opacity = 60; blur = 10; brightness = 80; saturation = 90; break;
+                case 'vibrant': opacity = 80; blur = 8; brightness = 120; saturation = 150; break;
+            }
+            
+            document.getElementById('glass-opacity').value = opacity;
+            document.getElementById('glass-blur').value = blur;
+            document.getElementById('glass-brightness').value = brightness;
+            document.getElementById('saturation-effect').value = saturation;
+            
+            document.getElementById('glass-opacity-value').textContent = opacity + '%';
+            document.getElementById('glass-blur-value').textContent = blur + 'px';
+            document.getElementById('glass-brightness-value').textContent = brightness + '%';
+            document.getElementById('saturation-value').textContent = saturation + '%';
+            
+            state.glassEffects = { opacity, blur, brightness, saturation };
+            generatePreview();
+            showToast(`Glass preset: ${preset}`, 'success');
+        });
+    });
+    
+    // Color presets
+    document.querySelectorAll('[data-preset]').forEach(btn => {
+        if (btn.dataset.preset && ['neon', 'dark', 'pastel', 'sunset'].includes(btn.dataset.preset)) {
+            btn.addEventListener('click', (e) => {
+                const preset = e.target.dataset.preset;
+                applyColorPreset(preset);
+            });
+        }
+    });
+    
+    // Input events for auto-update
+    document.getElementById('profile-name').addEventListener('input', () => {
+        updateStats();
+        setTimeout(generatePreview, 500);
+    });
+    
+    document.getElementById('profile-desc').addEventListener('input', () => {
+        updateStats();
+        setTimeout(generatePreview, 500);
+    });
+    
+    document.getElementById('footer-text').addEventListener('input', () => {
+        setTimeout(generatePreview, 500);
+    });
+    
+    // Drag and drop
+    setupDragAndDrop();
+}
+
+// ============ CORE FUNCTIONS ============
+function handleFileUpload(event, type) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Check file size
+    const maxSize = type === 'video' ? 200 * 1024 * 1024 : 100 * 1024 * 1024;
+    if (file.size > maxSize) {
+        showToast(`File too large! Max ${type === 'video' ? '200MB' : '100MB'}`, 'error');
+        return;
     }
     
-    // Generate Random ID
-    static generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        state.profileMedia = e.target.result;
+        state.profileMediaType = type;
+        
+        const preview = document.getElementById('profile-preview');
+        const img = document.getElementById('profile-img-preview');
+        const video = document.getElementById('profile-video-preview');
+        
+        preview.style.display = 'block';
+        
+        if (type === 'video') {
+            img.style.display = 'none';
+            video.style.display = 'block';
+            video.src = e.target.result;
+            video.load();
+            video.play().catch(e => console.log('Autoplay prevented'));
+        } else {
+            video.style.display = 'none';
+            img.style.display = 'block';
+            img.src = e.target.result;
+        }
+        
+        updateProfileBorderPreview();
+        updateStats();
+        generatePreview();
+        showToast(`${type} uploaded successfully!`, 'success');
+    };
+    
+    reader.onerror = function() {
+        showToast('Error reading file!', 'error');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+function handleBgVideoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Check file size
+    if (file.size > 200 * 1024 * 1024) {
+        showToast('Video too large! Max 200MB', 'error');
+        return;
     }
     
-    // Format Number with Commas
-    static formatNumber(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        state.background.video = e.target.result;
+        
+        const previewContainer = document.getElementById('video-bg-preview-container');
+        const video = document.getElementById('video-bg-preview');
+        
+        previewContainer.style.display = 'block';
+        video.src = e.target.result;
+        video.load();
+        video.play().catch(e => console.log('Autoplay prevented'));
+        
+        generatePreview();
+        showToast('Background video uploaded!', 'success');
+    };
     
-    // Debounce Function
-    static debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
+    reader.onerror = function() {
+        showToast('Error reading video file!', 'error');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+function handleBgUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        // Set as custom background
+        const bgDivs = document.querySelectorAll('.bg-option');
+        if (bgDivs.length > 0) {
+            bgDivs.forEach(div => div.classList.remove('active'));
+        }
+        
+        // Create new background option
+        const container = document.getElementById('bg-gallery-main');
+        const div = document.createElement('div');
+        div.className = 'bg-option active';
+        div.style.backgroundImage = `url(${e.target.result})`;
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center';
+        div.setAttribute('data-bg-type', 'custom');
+        div.setAttribute('title', 'Custom Background');
+        div.innerHTML = '<i class="fas fa-image"></i>';
+        
+        div.addEventListener('click', () => {
+            container.querySelectorAll('.bg-option').forEach(el => el.classList.remove('active'));
+            div.classList.add('active');
+            state.background.type = 'custom';
+            state.background.custom = e.target.result;
+            generatePreview();
+            showToast('Custom background selected!', 'success');
+        });
+        
+        container.appendChild(div);
+        
+        generatePreview();
+        showToast('Custom background uploaded!', 'success');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+function loadFromURL() {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) {
+        showToast('Please enter a URL!', 'error');
+        return;
     }
     
     // Validate URL
-    static isValidUrl(url) {
-        try {
-            new URL(url);
-            return true;
-        } catch (_) {
-            return false;
-        }
+    try {
+        new URL(url);
+    } catch {
+        showToast('Invalid URL format!', 'error');
+        return;
     }
     
-    // Copy to Clipboard
-    static copyToClipboard(text) {
-        return navigator.clipboard.writeText(text)
-            .then(() => true)
-            .catch(() => {
-                // Fallback for older browsers
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                return true;
-            });
-    }
+    state.profileMedia = url;
+    state.profileMediaType = 'image';
     
-    // Download File
-    static downloadFile(content, filename, type = 'text/plain') {
-        const blob = new Blob([content], { type });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
+    const preview = document.getElementById('profile-preview');
+    const img = document.getElementById('profile-img-preview');
+    const video = document.getElementById('profile-video-preview');
+    
+    preview.style.display = 'block';
+    video.style.display = 'none';
+    img.style.display = 'block';
+    img.src = url;
+    
+    updateProfileBorderPreview();
+    generatePreview();
+    showToast('Image loaded from URL!', 'success');
 }
 
-// ===== INITIALIZATION =====
-class App {
-    static init() {
-        console.log('🚀 LinkTree GOD MODE Generator v3.0.0');
-        console.log('👤 Author: AxelLux');
-        console.log('📅 Copyright: © 2024 AxelLux — All Rights Reserved');
-        
-        // Initialize all components
-        this.initEvents();
-        this.loadFromLocalStorage();
-        this.updateUI();
-        this.generatePreview();
-        
-        // Hide loading screen after 1.5 seconds
+function testURL() {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) {
+        showToast('Please enter a URL!', 'error');
+        return;
+    }
+    
+    showToast('Testing URL...', 'info');
+    
+    // Create test image
+    const testImg = new Image();
+    testImg.onload = function() {
+        showToast('URL is valid and accessible!', 'success');
+    };
+    testImg.onerror = function() {
+        showToast('URL is not accessible!', 'error');
+    };
+    testImg.src = url;
+}
+
+function removeProfileMedia() {
+    state.profileMedia = null;
+    state.profileMediaType = null;
+    document.getElementById('profile-preview').style.display = 'none';
+    generatePreview();
+    showToast('Profile media removed!', 'success');
+}
+
+function addFirstLink() {
+    addLink({
+        title: 'My Awesome Website',
+        url: 'https://example.com',
+        icon: 'fas fa-globe',
+        description: 'Visit my personal website'
+    });
+}
+
+function addCustomLink() {
+    state.linkCounter++;
+    addLink({
+        title: `Cool Link ${state.linkCounter}`,
+        url: '',
+        icon: 'fas fa-link',
+        description: 'Link description...'
+    });
+    showToast('New link added!', 'success');
+}
+
+function quickAddLink() {
+    const title = prompt('Enter link title:', 'My Awesome Link');
+    if (!title) return;
+    
+    let url = prompt('Enter URL:', 'https://');
+    if (!url) return;
+    
+    if (!url.startsWith('http')) {
+        url = 'https://' + url;
+    }
+    
+    const description = prompt('Enter description (optional):', '');
+    
+    state.linkCounter++;
+    addLink({ 
+        title, 
+        url, 
+        icon: 'fas fa-link',
+        description: description || ''
+    });
+    showToast('Quick link added!', 'success');
+}
+
+function addLink(data) {
+    const linkId = Date.now(); // Unique ID
+    const link = { ...data, id: linkId };
+    state.links.push(link);
+    
+    const item = document.createElement('div');
+    item.className = 'link-item';
+    item.id = `link-${linkId}`;
+    
+    item.innerHTML = `
+        <div class="link-header">
+            <span>LINK #${state.links.length}</span>
+            <div class="link-controls">
+                <button class="edit-link-btn" data-id="${linkId}" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="delete-link-btn" data-id="${linkId}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <button class="move-up-btn" data-id="${linkId}" title="Move Up">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+                <button class="move-down-btn" data-id="${linkId}" title="Move Down">
+                    <i class="fas fa-arrow-down"></i>
+                </button>
+            </div>
+        </div>
+        <div style="margin-bottom: 10px;">
+            <input type="text" class="link-title form-input" placeholder="Link Title" value="${data.title}" style="width: 100%; margin-bottom: 8px;">
+            <input type="url" class="link-url form-input" placeholder="https://example.com" value="${data.url}" style="width: 100%; margin-bottom: 8px;">
+            <textarea class="link-description-input" placeholder="Link description (optional)">${data.description || ''}</textarea>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <select class="link-icon-select form-select" style="flex: 1;">
+                <option value="fas fa-link">Default Link</option>
+                <option value="fab fa-whatsapp">WhatsApp</option>
+                <option value="fab fa-instagram">Instagram</option>
+                <option value="fab fa-youtube">YouTube</option>
+                <option value="fab fa-tiktok">TikTok</option>
+                <option value="fab fa-github">GitHub</option>
+                <option value="fab fa-twitter">Twitter/X</option>
+                <option value="fab fa-facebook">Facebook</option>
+                <option value="fab fa-linkedin">LinkedIn</option>
+                <option value="fas fa-globe">Website</option>
+                <option value="fas fa-envelope">Email</option>
+                <option value="fas fa-phone">Phone</option>
+                <option value="fas fa-shopping-cart">Shop</option>
+                <option value="fas fa-music">Music</option>
+                <option value="fas fa-video">Video</option>
+                <option value="fas fa-image">Image</option>
+                <option value="fas fa-file-pdf">PDF</option>
+                <option value="fas fa-download">Download</option>
+            </select>
+            <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(255, 133, 161, 0.1); border-radius: 8px;">
+                <i class="${data.icon}" style="color: var(--pink-neon); font-size: 18px;"></i>
+            </div>
+            <button class="btn-3d btn-secondary choose-icon-btn" data-id="${linkId}" style="padding: 8px 12px; font-size: 0.7rem;">
+                <i class="fas fa-icons"></i> Choose Icon
+            </button>
+        </div>
+    `;
+    
+    // Set selected icon
+    const select = item.querySelector('.link-icon-select');
+    Array.from(select.options).forEach(option => {
+        if (option.value === data.icon) {
+            option.selected = true;
+        }
+    });
+    
+    document.getElementById('links-list').appendChild(item);
+    
+    // Add event listeners
+    const linkIdFinal = linkId;
+    
+    item.querySelector('.edit-link-btn').addEventListener('click', () => {
+        const titleInput = item.querySelector('.link-title');
+        titleInput.focus();
+        titleInput.select();
+        showToast(`Editing: ${titleInput.value}`, 'info');
+    });
+    
+    item.querySelector('.delete-link-btn').addEventListener('click', () => {
+        item.style.transform = 'translateX(-100%)';
+        item.style.opacity = '0';
         setTimeout(() => {
-            elements.loadingScreen.classList.add('hidden');
-            Utils.showToast('LinkTree GOD MODE loaded successfully!', 'success');
-        }, 1500);
-        
-        // Auto-save every 30 seconds
-        if (state.autoSave) {
-            setInterval(() => {
-                this.saveToLocalStorage();
-                elements.autoSaveStatus.textContent = 'ON';
-                setTimeout(() => {
-                    elements.autoSaveStatus.textContent = 'ON';
-                }, 1000);
-            }, 30000);
-        }
-    }
+            item.remove();
+            state.links = state.links.filter(l => l.id != linkIdFinal);
+            updateStats();
+            generatePreview();
+            showToast('Link removed!', 'success');
+        }, 300);
+    });
     
-    // Initialize Event Listeners
-    static initEvents() {
-        // Sidebar Toggle
-        elements.sidebarToggle?.addEventListener('click', () => {
-            elements.sidebar.classList.toggle('active');
-        });
-        
-        // Navigation
-        elements.sectionNavItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const section = item.getAttribute('data-section');
-                this.switchSection(section);
-                if (window.innerWidth <= 1024) {
-                    elements.sidebar.classList.remove('active');
-                }
-            });
-        });
-        
-        // Mobile Tabs
-        elements.mobileTabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const section = button.getAttribute('data-section');
-                this.switchSection(section);
-            });
-        });
-        
-        // Profile Section
-        elements.browsePhotoBtn?.addEventListener('click', () => {
-            elements.profilePhotoInput.click();
-        });
-        
-        elements.profilePhotoInput?.addEventListener('change', (e) => {
-            this.handleProfilePhotoUpload(e);
-        });
-        
-        elements.removeProfileBtn?.addEventListener('click', () => {
-            this.removeProfilePhoto();
-        });
-        
-        elements.displayName?.addEventListener('input', Utils.debounce(() => {
-            state.profile.name = elements.displayName.value;
-            elements.profileNameDisplay.textContent = state.profile.name;
-            this.updateUI();
-            this.generatePreview();
-        }, 300));
-        
-        elements.profileBio?.addEventListener('input', Utils.debounce(() => {
-            state.profile.bio = elements.profileBio.value;
-            this.generatePreview();
-        }, 300));
-        
-        elements.verifiedBadge?.addEventListener('change', () => {
-            state.profile.verified = elements.verifiedBadge.checked;
-            this.generatePreview();
-        });
-        
-        // Header Style Selector
-        document.querySelectorAll('.style-option[data-style]').forEach(option => {
-            option.addEventListener('click', () => {
-                document.querySelectorAll('.style-option[data-style]').forEach(o => o.classList.remove('active'));
-                option.classList.add('active');
-                state.profile.headerStyle = option.getAttribute('data-style');
-                this.generatePreview();
-            });
-        });
-        
-        // Quick Actions
-        elements.quickAddLink?.addEventListener('click', () => {
-            this.openLinkModal();
-        });
-        
-        elements.quickPreview?.addEventListener('click', () => {
-            this.switchSection('preview');
-        });
-        
-        elements.quickExport?.addEventListener('click', () => {
-            this.switchSection('export');
-        });
-        
-        elements.quickReset?.addEventListener('click', () => {
-            if (confirm('Are you sure you want to reset all analytics data?')) {
-                this.resetAnalytics();
-            }
-        });
-        
-        elements.quickShare?.addEventListener('click', () => {
-            this.generateShareableLink();
-        });
-        
-        // Links Management
-        elements.addNewLink?.addEventListener('click', () => {
-            this.openLinkModal();
-        });
-        
-        elements.createFolder?.addEventListener('click', () => {
-            this.createFolder();
-        });
-        
-        elements.importLinks?.addEventListener('click', () => {
-            this.importLinksFromJson();
-        });
-        
-        elements.exportLinks?.addEventListener('click', () => {
-            this.exportLinksToJson();
-        });
-        
-        elements.autoSort?.addEventListener('change', () => {
-            state.autoSort = elements.autoSort.checked;
-            if (state.autoSort) {
-                this.sortLinks();
-            }
-        });
-        
-        elements.searchLinks?.addEventListener('input', Utils.debounce(() => {
-            this.filterLinks(elements.searchLinks.value);
-        }, 300));
-        
-        // Link Modal
-        elements.closeLinkModal?.addEventListener('click', () => {
-            this.closeLinkModal();
-        });
-        
-        elements.cancelLinkBtn?.addEventListener('click', () => {
-            this.closeLinkModal();
-        });
-        
-        elements.saveLinkBtn?.addEventListener('click', () => {
-            this.saveLink();
-        });
-        
-        elements.scheduleToggle?.addEventListener('change', () => {
-            const enabled = elements.scheduleToggle.checked;
-            elements.startTime.disabled = !enabled;
-            elements.endTime.disabled = !enabled;
-        });
-        
-        // Design Section - Tabs
-        elements.designTabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tab = btn.getAttribute('data-tab');
-                this.switchDesignTab(tab);
-            });
-        });
-        
-        // Colors
-        elements.colorPresets.forEach(preset => {
-            preset.addEventListener('click', () => {
-                document.querySelectorAll('.preset-option').forEach(p => p.classList.remove('active'));
-                preset.classList.add('active');
-                const presetName = preset.getAttribute('data-preset');
-                this.applyColorPreset(presetName);
-            });
-        });
-        
-        elements.applyColors?.addEventListener('click', () => {
-            this.applyCustomColors();
-        });
-        
-        // Fonts
-        elements.fontFamily?.addEventListener('change', () => {
-            state.design.font.family = elements.fontFamily.value;
-            this.generatePreview();
-        });
-        
-        elements.titleSize?.addEventListener('input', () => {
-            const value = elements.titleSize.value;
-            elements.titleSizeValue.textContent = value + 'px';
-            state.design.font.size.title = value + 'px';
-            this.generatePreview();
-        });
-        
-        elements.bodySize?.addEventListener('input', () => {
-            const value = elements.bodySize.value;
-            elements.bodySizeValue.textContent = value + 'px';
-            state.design.font.size.body = value + 'px';
-            this.generatePreview();
-        });
-        
-        elements.weightButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.weight-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                state.design.font.weight = btn.getAttribute('data-weight');
-                this.generatePreview();
-            });
-        });
-        
-        // Background
-        elements.bgTypeButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const type = btn.getAttribute('data-type');
-                this.switchBackgroundType(type);
-            });
-        });
-        
-        elements.gradientPresets.forEach(preset => {
-            preset.addEventListener('click', () => {
-                document.querySelectorAll('.gradient-preset').forEach(p => p.classList.remove('active'));
-                preset.classList.add('active');
-                state.design.background.gradient = preset.getAttribute('data-gradient');
-                this.generatePreview();
-            });
-        });
-        
-        elements.bgSolidColor?.addEventListener('change', () => {
-            state.design.background.color = elements.bgSolidColor.value;
-            this.generatePreview();
-        });
-        
-        // Buttons
-        document.querySelectorAll('.style-option[data-style]').forEach(option => {
-            option.addEventListener('click', () => {
-                if (option.closest('.button-styles')) {
-                    document.querySelectorAll('.style-option[data-style]').forEach(o => o.classList.remove('active'));
-                    option.classList.add('active');
-                    state.design.buttons.style = option.getAttribute('data-style');
-                    this.updateDesignPreview();
-                    this.generatePreview();
-                }
-            });
-        });
-        
-        elements.hoverEffect?.addEventListener('change', () => {
-            state.design.buttons.hoverEffect = elements.hoverEffect.checked;
-            this.generatePreview();
-        });
-        
-        elements.shadowEffect?.addEventListener('change', () => {
-            state.design.buttons.shadowEffect = elements.shadowEffect.checked;
-            this.generatePreview();
-        });
-        
-        elements.gradientEffect?.addEventListener('change', () => {
-            state.design.buttons.gradientEffect = elements.gradientEffect.checked;
-            this.generatePreview();
-        });
-        
-        // Social Media
-        elements.socialInputs.forEach(input => {
-            input.addEventListener('input', Utils.debounce(() => {
-                const platform = input.closest('.social-card').getAttribute('data-platform');
-                state.social[platform] = input.value;
-                this.generatePreview();
-            }, 300));
-        });
-        
-        // Analytics
-        elements.exportAnalytics?.addEventListener('click', () => {
-            this.exportAnalyticsData();
-        });
-        
-        elements.resetAnalytics?.addEventListener('click', () => {
-            if (confirm('Are you sure you want to reset all analytics data? This cannot be undone.')) {
-                this.resetAnalytics();
-            }
-        });
-        
-        // Advanced Features
-        elements.generateQr?.addEventListener('click', () => {
-            this.generateQrCode();
-        });
-        
-        elements.editCss?.addEventListener('click', () => {
-            this.openCssEditor();
-        });
-        
-        elements.mobilePreviewBtn?.addEventListener('click', () => {
-            this.openMobilePreview();
-        });
-        
-        elements.shareButton?.addEventListener('change', () => {
-            state.advanced.shareButton = elements.shareButton.checked;
-            this.generatePreview();
-        });
-        
-        elements.customFooter?.addEventListener('input', Utils.debounce(() => {
-            state.advanced.customFooter = elements.customFooter.value;
-            this.generatePreview();
-        }, 300));
-        
-        elements.hideLogo?.addEventListener('change', () => {
-            state.advanced.hideLogo = elements.hideLogo.checked;
-            this.generatePreview();
-        });
-        
-        // Preview Section
-        elements.deviceButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const device = btn.getAttribute('data-device');
-                this.switchPreviewDevice(device);
-            });
-        });
-        
-        elements.refreshPreview?.addEventListener('click', () => {
-            this.generatePreview();
-        });
-        
-        elements.fullscreenPreview?.addEventListener('click', () => {
-            this.openFullscreenPreview();
-        });
-        
-        // Export Section
-        elements.exportHtml?.addEventListener('click', () => {
-            this.exportAsHtml();
-        });
-        
-        elements.viewSource?.addEventListener('click', () => {
-            this.viewSourceCode();
-        });
-        
-        elements.exportJson?.addEventListener('click', () => {
-            this.exportAsJson();
-        });
-        
-        elements.importJson?.addEventListener('click', () => {
-            this.importFromJson();
-        });
-        
-        elements.generateShareLink?.addEventListener('click', () => {
-            this.generateShareableLink();
-        });
-        
-        elements.codeTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const codeType = tab.getAttribute('data-code');
-                this.switchCodeTab(codeType);
-            });
-        });
-        
-        elements.copyAllCode?.addEventListener('click', () => {
-            this.copyAllCode();
-        });
-        
-        elements.downloadAllCode?.addEventListener('click', () => {
-            this.downloadAllCode();
-        });
-        
-        // Modal Close Buttons
-        elements.closeQrModal?.addEventListener('click', () => {
-            elements.qrModal.classList.remove('active');
-        });
-        
-        elements.closeCssModal?.addEventListener('click', () => {
-            elements.cssModal.classList.remove('active');
-        });
-        
-        elements.closeMobileModal?.addEventListener('click', () => {
-            elements.mobileModal.classList.remove('active');
-        });
-        
-        elements.closeSourceModal?.addEventListener('click', () => {
-            elements.sourceModal.classList.remove('active');
-        });
-        
-        // CSS Editor
-        elements.cancelCss?.addEventListener('click', () => {
-            elements.cssModal.classList.remove('active');
-        });
-        
-        elements.saveCss?.addEventListener('click', () => {
-            this.saveCustomCss();
-        });
-        
-        // Source Code Modal
-        elements.copySource?.addEventListener('click', () => {
-            this.copySourceCode();
-        });
-        
-        elements.downloadSource?.addEventListener('click', () => {
-            this.downloadSourceCode();
-        });
-        
-        // QR Code Modal
-        elements.downloadQr?.addEventListener('click', () => {
-            this.downloadQrCode();
-        });
-        
-        elements.copyQr?.addEventListener('click', () => {
-            this.copyQrCode();
-        });
-        
-        // Source Tabs
-        elements.sourceTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const sourceType = tab.getAttribute('data-source');
-                this.switchSourceTab(sourceType);
-            });
-        });
-        
-        // Close modals when clicking outside
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
-                e.target.classList.remove('active');
-            }
-        });
-        
-        // Handle keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + S to save
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                this.saveToLocalStorage();
-                Utils.showToast('Project saved locally!', 'success');
-            }
-            
-            // Escape to close modals
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal.active').forEach(modal => {
-                    modal.classList.remove('active');
-                });
-            }
-        });
-    }
+    item.querySelector('.move-up-btn').addEventListener('click', () => {
+        moveLinkUp(linkIdFinal);
+    });
     
-    // Switch Between Sections
-    static switchSection(sectionId) {
-        // Update active state in sidebar
-        elements.sectionNavItems.forEach(item => {
-            item.classList.remove('active');
-            if (item.getAttribute('data-section') === sectionId) {
-                item.classList.add('active');
-            }
-        });
-        
-        // Update active state in mobile tabs
-        elements.mobileTabButtons.forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.getAttribute('data-section') === sectionId) {
-                btn.classList.add('active');
-            }
-        });
-        
-        // Show selected section
-        elements.contentSections.forEach(section => {
-            section.classList.remove('active');
-            if (section.id === sectionId) {
-                section.classList.add('active');
-            }
-        });
-        
-        // Special handling for specific sections
-        if (sectionId === 'preview') {
-            this.generatePreview();
-        } else if (sectionId === 'analytics') {
-            this.updateAnalyticsChart();
-        } else if (sectionId === 'export') {
-            this.updateCodePreview();
-        }
-    }
+    item.querySelector('.move-down-btn').addEventListener('click', () => {
+        moveLinkDown(linkIdFinal);
+    });
     
-    // Update UI Based on State
-    static updateUI() {
-        // Update stats
-        if (elements.totalLinks) {
-            elements.totalLinks.textContent = state.links.length;
-        }
-        
-        if (elements.totalClicks) {
-            elements.totalClicks.textContent = Utils.formatNumber(state.analytics.clicks);
-        }
-        
-        if (elements.profileViews) {
-            elements.profileViews.textContent = Utils.formatNumber(state.analytics.views);
-        }
-        
-        if (elements.activeLinks) {
-            const activeCount = state.links.filter(link => link.enabled !== false).length;
-            elements.activeLinks.textContent = activeCount;
-        }
-        
-        // Update links count in sidebar
-        const linksCount = document.getElementById('links-count');
-        if (linksCount) {
-            linksCount.textContent = state.links.length;
-        }
-        
-        // Update design preview
-        this.updateDesignPreview();
-    }
+    item.querySelector('.choose-icon-btn').addEventListener('click', () => {
+        state.currentIcon = linkIdFinal;
+        openIconSelector();
+    });
     
-    // Update Design Preview
-    static updateDesignPreview() {
-        if (!elements.designPreview) return;
-        
-        const previewButton = elements.designPreview.querySelector('.preview-button');
-        if (!previewButton) return;
-        
-        // Update button style based on settings
-        previewButton.style.borderRadius = state.design.buttons.style === 'pill' ? '50px' : 
-                                         state.design.buttons.style === 'glass' ? '12px' : '8px';
-        
-        if (state.design.buttons.gradientEffect) {
-            previewButton.style.background = `linear-gradient(135deg, ${state.design.colors.primary}, ${state.design.colors.secondary})`;
-        } else {
-            previewButton.style.background = state.design.colors.primary;
-        }
-        
-        if (state.design.buttons.shadowEffect) {
-            previewButton.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        } else {
-            previewButton.style.boxShadow = 'none';
-        }
-        
-        if (state.design.buttons.hoverEffect) {
-            previewButton.style.transition = 'all 0.3s ease';
-        }
-    }
-}
-
-// ===== PROFILE MANAGEMENT =====
-class ProfileManager {
-    // Handle Profile Photo Upload
-    static handleProfilePhotoUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        if (!file.type.startsWith('image/')) {
-            Utils.showToast('Please upload an image file', 'error');
-            return;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            state.profile.photo = e.target.result;
-            this.updateProfilePhotoPreview();
-            App.generatePreview();
-            Utils.showToast('Profile photo uploaded successfully!', 'success');
-        };
-        reader.readAsDataURL(file);
-    }
+    item.querySelector('.link-title').addEventListener('input', (e) => {
+        const link = state.links.find(l => l.id === linkIdFinal);
+        if (link) link.title = e.target.value;
+        updateStats();
+        generatePreview();
+    });
     
-    // Update Profile Photo Preview
-    static updateProfilePhotoPreview() {
-        if (state.profile.photo && elements.profilePreview) {
-            elements.profilePreview.src = state.profile.photo;
-            elements.profilePreview.style.display = 'block';
-            elements.profileAvatar.innerHTML = `<img src="${state.profile.photo}" alt="Profile">`;
-        } else {
-            elements.profilePreview.style.display = 'none';
-            elements.profileAvatar.innerHTML = '<i class="fas fa-user-circle"></i>';
-        }
-    }
+    item.querySelector('.link-url').addEventListener('input', (e) => {
+        const link = state.links.find(l => l.id === linkIdFinal);
+        if (link) link.url = e.target.value;
+        updateStats();
+        generatePreview();
+    });
     
-    // Remove Profile Photo
-    static removeProfilePhoto() {
-        state.profile.photo = null;
-        elements.profilePhotoInput.value = '';
-        this.updateProfilePhotoPreview();
-        App.generatePreview();
-        Utils.showToast('Profile photo removed', 'warning');
-    }
-}
-
-// ===== LINKS MANAGEMENT =====
-class LinksManager {
-    // Open Link Modal
-    static openLinkModal(linkId = null) {
-        elements.linkModal.classList.add('active');
-        state.isEditing = !!linkId;
-        state.currentLink = linkId;
-        
-        if (linkId) {
-            // Editing existing link
-            const link = state.links.find(l => l.id === linkId);
-            if (link) {
-                elements.linkTitle.value = link.title || '';
-                elements.linkUrl.value = link.url || '';
-                elements.linkDescription.value = link.description || '';
-                elements.linkEnabled.checked = link.enabled !== false;
-                elements.scheduleToggle.checked = !!link.schedule;
-                
-                if (link.schedule) {
-                    elements.startTime.value = link.schedule.start || '';
-                    elements.endTime.value = link.schedule.end || '';
-                }
-                
-                // Update icon
-                if (link.icon) {
-                    elements.selectedIcon.innerHTML = `<i class="${link.icon}"></i>`;
-                }
-            }
-        } else {
-            // Adding new link
-            elements.linkTitle.value = '';
-            elements.linkUrl.value = '';
-            elements.linkDescription.value = '';
-            elements.linkEnabled.checked = true;
-            elements.scheduleToggle.checked = false;
-            elements.startTime.value = '';
-            elements.endTime.value = '';
-            elements.selectedIcon.innerHTML = '<i class="fas fa-link"></i>';
-        }
-    }
+    item.querySelector('.link-description-input').addEventListener('input', (e) => {
+        const link = state.links.find(l => l.id === linkIdFinal);
+        if (link) link.description = e.target.value;
+        updateStats();
+        generatePreview();
+    });
     
-    // Close Link Modal
-    static closeLinkModal() {
-        elements.linkModal.classList.remove('active');
-        state.isEditing = false;
-        state.currentLink = null;
-    }
-    
-    // Save Link
-    static saveLink() {
-        const title = elements.linkTitle.value.trim();
-        const url = elements.linkUrl.value.trim();
-        const description = elements.linkDescription.value.trim();
-        const enabled = elements.linkEnabled.checked;
-        const hasSchedule = elements.scheduleToggle.checked;
-        const startTime = elements.startTime.value;
-        const endTime = elements.endTime.value;
-        const icon = elements.selectedIcon.querySelector('i').className;
-        
-        // Validation
-        if (!title) {
-            Utils.showToast('Please enter a link title', 'error');
-            return;
-        }
-        
-        if (!url) {
-            Utils.showToast('Please enter a URL', 'error');
-            return;
-        }
-        
-        if (!Utils.isValidUrl(url) && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
-            Utils.showToast('Please enter a valid URL', 'error');
-            return;
-        }
-        
-        const linkData = {
-            id: state.currentLink || Utils.generateId(),
-            title,
-            url: url.startsWith('http') ? url : `https://${url}`,
-            description,
-            enabled,
-            icon,
-            date: new Date().toISOString(),
-            clicks: 0
-        };
-        
-        if (hasSchedule && startTime && endTime) {
-            linkData.schedule = { start: startTime, end: endTime };
-        }
-        
-        if (state.isEditing) {
-            // Update existing link
-            const index = state.links.findIndex(l => l.id === state.currentLink);
-            if (index !== -1) {
-                state.links[index] = { ...state.links[index], ...linkData };
-                Utils.showToast('Link updated successfully!', 'success');
-            }
-        } else {
-            // Add new link
-            state.links.unshift(linkData);
-            Utils.showToast('Link added successfully!', 'success');
-        }
-        
-        this.closeLinkModal();
-        this.renderLinks();
-        App.updateUI();
-        App.generatePreview();
-    }
-    
-    // Delete Link
-    static deleteLink(linkId) {
-        if (confirm('Are you sure you want to delete this link?')) {
-            state.links = state.links.filter(link => link.id !== linkId);
-            this.renderLinks();
-            App.updateUI();
-            App.generatePreview();
-            Utils.showToast('Link deleted', 'warning');
-        }
-    }
-    
-    // Toggle Link Status
-    static toggleLinkStatus(linkId) {
-        const link = state.links.find(l => l.id === linkId);
+    item.querySelector('.link-icon-select').addEventListener('change', (e) => {
+        const link = state.links.find(l => l.id === linkIdFinal);
         if (link) {
-            link.enabled = !link.enabled;
-            this.renderLinks();
-            App.generatePreview();
-            Utils.showToast(`Link ${link.enabled ? 'enabled' : 'disabled'}`, 'info');
+            link.icon = e.target.value;
+            item.querySelector('.fa-lg, .fab, .fas').className = link.icon;
         }
-    }
+        generatePreview();
+    });
     
-    // Pin/Unpin Link
-    static togglePinLink(linkId) {
-        const link = state.links.find(l => l.id === linkId);
-        if (link) {
-            link.pinned = !link.pinned;
-            if (state.autoSort) {
-                this.sortLinks();
-            }
-            this.renderLinks();
-            Utils.showToast(`Link ${link.pinned ? 'pinned' : 'unpinned'}`, 'info');
-        }
-    }
-    
-    // Highlight/Unhighlight Link
-    static toggleHighlightLink(linkId) {
-        const link = state.links.find(l => l.id === linkId);
-        if (link) {
-            link.highlighted = !link.highlighted;
-            this.renderLinks();
-            Utils.showToast(`Link ${link.highlighted ? 'highlighted' : 'unhighlighted'}`, 'info');
-        }
-    }
-    
-    // Move Link Up
-    static moveLinkUp(linkId) {
-        const index = state.links.findIndex(l => l.id === linkId);
-        if (index > 0) {
-            [state.links[index], state.links[index - 1]] = [state.links[index - 1], state.links[index]];
-            this.renderLinks();
-            App.generatePreview();
-        }
-    }
-    
-    // Move Link Down
-    static moveLinkDown(linkId) {
-        const index = state.links.findIndex(l => l.id === linkId);
-        if (index < state.links.length - 1) {
-            [state.links[index], state.links[index + 1]] = [state.links[index + 1], state.links[index]];
-            this.renderLinks();
-            App.generatePreview();
-        }
-    }
-    
-    // Sort Links (pinned first, then by date)
-    static sortLinks() {
-        state.links.sort((a, b) => {
-            if (a.pinned && !b.pinned) return -1;
-            if (!a.pinned && b.pinned) return 1;
-            return new Date(b.date) - new Date(a.date);
-        });
-    }
-    
-    // Filter Links by Search Query
-    static filterLinks(query) {
-        const allLinks = document.querySelectorAll('.link-item');
-        const searchTerm = query.toLowerCase();
+    updateStats();
+    generatePreview();
+}
+
+function moveLinkUp(linkId) {
+    const index = state.links.findIndex(l => l.id === linkId);
+    if (index > 0) {
+        // Swap in array
+        [state.links[index], state.links[index - 1]] = [state.links[index - 1], state.links[index]];
         
-        allLinks.forEach(link => {
-            const title = link.querySelector('.link-title').textContent.toLowerCase();
-            const url = link.querySelector('.link-url').textContent.toLowerCase();
-            const description = link.querySelector('.link-description')?.textContent.toLowerCase() || '';
+        // Swap in DOM
+        const container = document.getElementById('links-list');
+        const items = Array.from(container.children);
+        const itemIndex = items.findIndex(item => item.id === `link-${linkId}`);
+        
+        if (itemIndex > 0) {
+            container.insertBefore(items[itemIndex], items[itemIndex - 1]);
+        }
+        
+        generatePreview();
+        showToast('Link moved up!', 'success');
+    }
+}
+
+function moveLinkDown(linkId) {
+    const index = state.links.findIndex(l => l.id === linkId);
+    if (index < state.links.length - 1) {
+        // Swap in array
+        [state.links[index], state.links[index + 1]] = [state.links[index + 1], state.links[index]];
+        
+        // Swap in DOM
+        const container = document.getElementById('links-list');
+        const items = Array.from(container.children);
+        const itemIndex = items.findIndex(item => item.id === `link-${linkId}`);
+        
+        if (itemIndex < items.length - 1) {
+            container.insertBefore(items[itemIndex + 1], items[itemIndex]);
+        }
+        
+        generatePreview();
+        showToast('Link moved down!', 'success');
+    }
+}
+
+function importLinks() {
+    const json = prompt('Paste links JSON:');
+    if (!json) return;
+    
+    try {
+        const links = JSON.parse(json);
+        if (Array.isArray(links)) {
+            // Clear existing links
+            state.links = [];
+            document.getElementById('links-list').innerHTML = '';
             
-            if (title.includes(searchTerm) || url.includes(searchTerm) || description.includes(searchTerm)) {
-                link.style.display = '';
-            } else {
-                link.style.display = 'none';
-            }
-        });
-    }
-    
-    // Create Folder
-    static createFolder() {
-        const folderName = prompt('Enter folder name:');
-        if (!folderName) return;
-        
-        const folder = {
-            id: Utils.generateId(),
-            type: 'folder',
-            title: folderName,
-            links: [],
-            date: new Date().toISOString()
-        };
-        
-        state.links.unshift(folder);
-        this.renderLinks();
-        App.updateUI();
-        Utils.showToast('Folder created!', 'success');
-    }
-    
-    // Render Links List
-    static renderLinks() {
-        if (!elements.linksList) return;
-        
-        elements.linksList.innerHTML = '';
-        
-        if (state.links.length === 0) {
-            elements.linksList.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-link fa-3x"></i>
-                    <h4>No Links Yet</h4>
-                    <p>Add your first link to get started!</p>
-                    <button class="btn-primary" id="add-first-link">
-                        <i class="fas fa-plus"></i> Add First Link
-                    </button>
-                </div>
-            `;
-            
-            document.getElementById('add-first-link')?.addEventListener('click', () => {
-                this.openLinkModal();
+            // Add new links
+            links.forEach(link => {
+                addLink(link);
             });
-            return;
-        }
-        
-        state.links.forEach(link => {
-            if (link.type === 'folder') {
-                this.renderFolder(link);
-            } else {
-                this.renderLinkItem(link);
-            }
-        });
-        
-        // Also update recent links
-        this.renderRecentLinks();
-    }
-    
-    // Render Link Item
-    static renderLinkItem(link) {
-        const linkElement = document.createElement('div');
-        linkElement.className = `link-item ${link.pinned ? 'pinned' : ''} ${link.highlighted ? 'highlighted' : ''}`;
-        linkElement.innerHTML = `
-            <div class="link-header">
-                <div class="link-title">
-                    <i class="${link.icon || 'fas fa-link'} link-icon"></i>
-                    ${link.title}
-                </div>
-                <div class="link-status ${link.enabled === false ? 'inactive' : 'active'}">
-                    ${link.enabled === false ? 'Disabled' : 'Active'}
-                </div>
-            </div>
-            <div class="link-url">${link.url}</div>
-            ${link.description ? `<div class="link-description">${link.description}</div>` : ''}
-            <div class="link-meta">
-                <span><i class="fas fa-calendar"></i> ${new Date(link.date).toLocaleDateString()}</span>
-                <span><i class="fas fa-mouse-pointer"></i> ${link.clicks || 0} clicks</span>
-                ${link.schedule ? `<span><i class="fas fa-clock"></i> ${link.schedule.start} - ${link.schedule.end}</span>` : ''}
-            </div>
-            <div class="link-actions">
-                <button class="link-btn edit" data-id="${link.id}">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="link-btn delete" data-id="${link.id}">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-                <button class="link-btn pin" data-id="${link.id}">
-                    <i class="fas fa-thumbtack"></i> ${link.pinned ? 'Unpin' : 'Pin'}
-                </button>
-                <button class="link-btn highlight" data-id="${link.id}">
-                    <i class="fas fa-star"></i> ${link.highlighted ? 'Unhighlight' : 'Highlight'}
-                </button>
-                <button class="link-btn move-up" data-id="${link.id}">
-                    <i class="fas fa-arrow-up"></i> Up
-                </button>
-                <button class="link-btn move-down" data-id="${link.id}">
-                    <i class="fas fa-arrow-down"></i> Down
-                </button>
-            </div>
-        `;
-        
-        elements.linksList.appendChild(linkElement);
-        
-        // Add event listeners to buttons
-        linkElement.querySelector('.edit').addEventListener('click', () => {
-            this.openLinkModal(link.id);
-        });
-        
-        linkElement.querySelector('.delete').addEventListener('click', () => {
-            this.deleteLink(link.id);
-        });
-        
-        linkElement.querySelector('.pin').addEventListener('click', () => {
-            this.togglePinLink(link.id);
-        });
-        
-        linkElement.querySelector('.highlight').addEventListener('click', () => {
-            this.toggleHighlightLink(link.id);
-        });
-        
-        linkElement.querySelector('.move-up').addEventListener('click', () => {
-            this.moveLinkUp(link.id);
-        });
-        
-        linkElement.querySelector('.move-down').addEventListener('click', () => {
-            this.moveLinkDown(link.id);
-        });
-    }
-    
-    // Render Folder
-    static renderFolder(folder) {
-        const folderElement = document.createElement('div');
-        folderElement.className = 'link-item folder';
-        folderElement.innerHTML = `
-            <div class="link-header">
-                <div class="link-title">
-                    <i class="fas fa-folder link-icon"></i>
-                    ${folder.title}
-                </div>
-                <div class="link-status">
-                    ${folder.links.length} links
-                </div>
-            </div>
-            <div class="folder-content">
-                ${folder.links.length === 0 ? 
-                    '<p class="empty-folder">No links in this folder</p>' : 
-                    folder.links.map(link => `
-                        <div class="folder-link">
-                            <i class="${link.icon || 'fas fa-link'}"></i>
-                            <span>${link.title}</span>
-                        </div>
-                    `).join('')
-                }
-            </div>
-            <div class="link-actions">
-                <button class="link-btn edit" data-id="${folder.id}">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="link-btn delete" data-id="${folder.id}">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-                <button class="link-btn add" data-id="${folder.id}">
-                    <i class="fas fa-plus"></i> Add Link
-                </button>
-            </div>
-        `;
-        
-        elements.linksList.appendChild(folderElement);
-    }
-    
-    // Render Recent Links
-    static renderRecentLinks() {
-        if (!elements.recentLinksList) return;
-        
-        const recentLinks = [...state.links]
-            .filter(link => link.type !== 'folder')
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .slice(0, 5);
-        
-        if (recentLinks.length === 0) {
-            elements.recentLinksList.innerHTML = '<p class="empty-state">No links yet</p>';
-            return;
-        }
-        
-        elements.recentLinksList.innerHTML = recentLinks.map(link => `
-            <div class="recent-link">
-                <i class="${link.icon || 'fas fa-link'}"></i>
-                <div class="recent-link-info">
-                    <div class="recent-link-title">${link.title}</div>
-                    <div class="recent-link-url">${link.url}</div>
-                </div>
-                <div class="recent-link-clicks">${link.clicks || 0} clicks</div>
-            </div>
-        `).join('');
-    }
-    
-    // Import Links from JSON
-    static importLinksFromJson() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
             
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data)) {
-                        state.links = data;
-                        this.renderLinks();
-                        App.updateUI();
-                        App.generatePreview();
-                        Utils.showToast(`${data.length} links imported successfully!`, 'success');
-                    } else {
-                        Utils.showToast('Invalid JSON format', 'error');
-                    }
-                } catch (error) {
-                    Utils.showToast('Error reading JSON file', 'error');
-                }
-            };
-            reader.readAsText(file);
-        };
-        
-        input.click();
-    }
-    
-    // Export Links to JSON
-    static exportLinksToJson() {
-        const data = JSON.stringify(state.links, null, 2);
-        const filename = `linktree-links-${new Date().toISOString().split('T')[0]}.json`;
-        Utils.downloadFile(data, filename, 'application/json');
-        Utils.showToast('Links exported successfully!', 'success');
+            showToast(`${links.length} links imported!`, 'success');
+        } else {
+            showToast('Invalid links format!', 'error');
+        }
+    } catch (e) {
+        showToast('Invalid JSON!', 'error');
     }
 }
 
-// ===== DESIGN CUSTOMIZATION =====
-class DesignManager {
-    // Switch Design Tab
-    static switchDesignTab(tabId) {
-        // Update active tab button
-        elements.designTabBtns.forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.getAttribute('data-tab') === tabId) {
-                btn.classList.add('active');
-            }
-        });
-        
-        // Show selected tab pane
-        elements.designTabPanes.forEach(pane => {
-            pane.classList.remove('active');
-            if (pane.id === `${tabId}-tab`) {
-                pane.classList.add('active');
-            }
-        });
-    }
-    
-    // Apply Color Preset
-    static applyColorPreset(presetName) {
-        const presets = {
-            default: {
-                primary: '#667eea',
-                secondary: '#764ba2',
-                text: '#ffffff',
-                background: '#0f172a'
-            },
-            dark: {
-                primary: '#1a1a2e',
-                secondary: '#16213e',
-                text: '#ffffff',
-                background: '#0f172a'
-            },
-            light: {
-                primary: '#f8f9fa',
-                secondary: '#e9ecef',
-                text: '#212529',
-                background: '#ffffff'
-            },
-            neon: {
-                primary: '#ff00ff',
-                secondary: '#00ffff',
-                text: '#ffffff',
-                background: '#000000'
-            }
-        };
-        
-        if (presets[presetName]) {
-            state.design.colors = { ...presets[presetName] };
-            
-            // Update color pickers
-            if (elements.primaryColor) elements.primaryColor.value = state.design.colors.primary;
-            if (elements.secondaryColor) elements.secondaryColor.value = state.design.colors.secondary;
-            if (elements.textColor) elements.textColor.value = state.design.colors.text;
-            if (elements.bgColor) elements.bgColor.value = state.design.colors.background;
-            
-            App.generatePreview();
-            Utils.showToast(`${presetName} color preset applied`, 'success');
-        }
-    }
-    
-    // Apply Custom Colors
-    static applyCustomColors() {
-        state.design.colors.primary = elements.primaryColor.value;
-        state.design.colors.secondary = elements.secondaryColor.value;
-        state.design.colors.text = elements.textColor.value;
-        state.design.colors.background = elements.bgColor.value;
-        
-        App.generatePreview();
-        Utils.showToast('Custom colors applied!', 'success');
-    }
-    
-    // Switch Background Type
-    static switchBackgroundType(type) {
-        state.design.background.type = type;
-        
-        // Update active button
-        elements.bgTypeButtons.forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.getAttribute('data-type') === type) {
-                btn.classList.add('active');
-            }
-        });
-        
-        // Show corresponding options
-        const bgOptions = [elements.bgColorOptions, elements.bgGradientOptions, elements.bgImageOptions];
-        bgOptions.forEach(option => {
-            option?.classList.remove('active');
-        });
-        
-        if (type === 'color' && elements.bgColorOptions) {
-            elements.bgColorOptions.classList.add('active');
-        } else if (type === 'gradient' && elements.bgGradientOptions) {
-            elements.bgGradientOptions.classList.add('active');
-        } else if (type === 'image' && elements.bgImageOptions) {
-            elements.bgImageOptions.classList.add('active');
-        }
-        
-        App.generatePreview();
+function clearLinks() {
+    if (confirm('Are you sure you want to clear all links?')) {
+        state.links = [];
+        document.getElementById('links-list').innerHTML = '';
+        updateStats();
+        generatePreview();
+        showToast('All links cleared!', 'success');
     }
 }
 
-// ===== ANALYTICS =====
-class AnalyticsManager {
-    // Initialize Analytics
-    static init() {
-        this.updateAnalyticsDisplay();
-        this.updateTopLinks();
+function updateStats() {
+    const links = state.links.length;
+    document.getElementById('total-links').textContent = links;
+    document.getElementById('preview-links').textContent = links;
+    
+    const nameLen = document.getElementById('profile-name').value.length;
+    const descLen = document.getElementById('profile-desc').value.length;
+    let totalChars = nameLen + descLen;
+    
+    // Add link text lengths
+    state.links.forEach(link => {
+        totalChars += (link.title?.length || 0);
+        totalChars += (link.url?.length || 0);
+        totalChars += (link.description?.length || 0);
+    });
+    
+    document.getElementById('chars-count').textContent = totalChars;
+    
+    // Calculate approximate file size
+    let fileSize = 0;
+    if (state.profileMedia) {
+        // Rough estimate: 1 character ≈ 1 byte, base64 adds ~33% overhead
+        fileSize += state.profileMedia.length * 0.75;
+    }
+    fileSize += totalChars;
+    
+    // Add video background size estimate
+    if (state.background.video) {
+        fileSize += state.background.video.length * 0.75;
     }
     
-    // Update Analytics Display
-    static updateAnalyticsDisplay() {
-        if (elements.totalViews) {
-            elements.totalViews.textContent = Utils.formatNumber(state.analytics.views);
-        }
-        
-        if (elements.totalClicksAnalytics) {
-            elements.totalClicksAnalytics.textContent = Utils.formatNumber(state.analytics.clicks);
-        }
-        
-        if (elements.uniqueVisitors) {
-            elements.uniqueVisitors.textContent = Utils.formatNumber(state.analytics.uniqueVisitors);
-        }
-        
-        if (elements.clickRate) {
-            elements.clickRate.textContent = state.analytics.clickRate;
-        }
-    }
+    const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2);
+    document.getElementById('file-size-count').textContent = fileSizeMB + ' MB';
     
-    // Update Analytics Chart
-    static updateAnalyticsChart() {
-        if (!elements.clicksChart || !window.Chart) return;
-        
-        const ctx = elements.clicksChart.getContext('2d');
-        
-        // Destroy existing chart if it exists
-        if (elements.clicksChart.chart) {
-            elements.clicksChart.chart.destroy();
-        }
-        
-        // Create new chart
-        elements.clicksChart.chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Clicks',
-                    data: state.analytics.clicksData,
-                    borderColor: state.design.colors.primary,
-                    backgroundColor: `${state.design.colors.primary}20`,
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.7)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: 'rgba(255, 255, 255, 0.7)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    // Update Top Links
-    static updateTopLinks() {
-        if (!elements.topLinksList) return;
-        
-        const topLinks = [...state.links]
-            .filter(link => link.type !== 'folder')
-            .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
-            .slice(0, 5);
-        
-        if (topLinks.length === 0) {
-            elements.topLinksList.innerHTML = '<p class="empty-state">No clicks yet</p>';
-            return;
-        }
-        
-        elements.topLinksList.innerHTML = topLinks.map((link, index) => `
-            <div class="top-link">
-                <div class="top-link-rank">${index + 1}</div>
-                <div class="top-link-info">
-                    <div class="top-link-title">${link.title}</div>
-                    <div class="top-link-url">${link.url}</div>
-                </div>
-                <div class="top-link-stats">
-                    <div class="top-link-clicks">${link.clicks || 0} clicks</div>
-                    <div class="top-link-percentage">${Math.round((link.clicks || 0) / state.analytics.clicks * 100) || 0}%</div>
-                </div>
-            </div>
-        `).join('');
-    }
-    
-    // Track Click (Simulated for demo)
-    static trackClick(linkId) {
-        const link = state.links.find(l => l.id === linkId);
-        if (link) {
-            link.clicks = (link.clicks || 0) + 1;
-            state.analytics.clicks++;
-            state.analytics.views++;
-            
-            // Update click rate
-            state.analytics.clickRate = `${Math.round((state.analytics.clicks / state.analytics.views) * 100)}%`;
-            
-            // Update clicks data (simulate daily data)
-            const today = new Date().getDay();
-            state.analytics.clicksData[today] = (state.analytics.clicksData[today] || 0) + 1;
-            
-            this.updateAnalyticsDisplay();
-            this.updateTopLinks();
-            this.updateAnalyticsChart();
-            
-            // Save to localStorage
-            App.saveToLocalStorage();
-        }
-    }
-    
-    // Export Analytics Data
-    static exportAnalyticsData() {
-        const data = {
-            analytics: state.analytics,
-            links: state.links.map(link => ({
-                title: link.title,
-                url: link.url,
-                clicks: link.clicks || 0,
-                enabled: link.enabled
-            })),
-            exportDate: new Date().toISOString()
-        };
-        
-        const json = JSON.stringify(data, null, 2);
-        const filename = `linktree-analytics-${new Date().toISOString().split('T')[0]}.json`;
-        Utils.downloadFile(json, filename, 'application/json');
-        Utils.showToast('Analytics data exported!', 'success');
-    }
-    
-    // Reset Analytics
-    static resetAnalytics() {
-        state.analytics = {
-            views: 0,
-            clicks: 0,
-            uniqueVisitors: 0,
-            clickRate: '0%',
-            clicksData: [0, 0, 0, 0, 0, 0, 0],
-            topLinks: []
-        };
-        
-        // Reset link clicks
-        state.links.forEach(link => {
-            link.clicks = 0;
-        });
-        
-        this.updateAnalyticsDisplay();
-        this.updateTopLinks();
-        this.updateAnalyticsChart();
-        App.updateUI();
-        
-        Utils.showToast('Analytics data reset successfully!', 'success');
+    // Update preview stats
+    document.getElementById('preview-effects').textContent = 8 + links;
+    const performance = Math.max(70, 100 - links * 1.5);
+    document.getElementById('preview-performance').textContent = performance.toFixed(0) + '%';
+}
+
+function updateProfileBorderPreview() {
+    const borderPreview = document.getElementById('profile-border-preview');
+    if (borderPreview) {
+        borderPreview.style.borderWidth = state.profileBorder.width + 'px';
+        borderPreview.style.borderColor = state.profileBorder.color;
+        borderPreview.style.borderStyle = state.profileBorder.style;
+        borderPreview.style.borderRadius = state.profileBorder.radius + 'px';
+        borderPreview.style.boxShadow = `0 0 ${state.profileBorder.shadow}px ${state.profileBorder.color}`;
     }
 }
 
-// ===== PREVIEW & EXPORT =====
-class PreviewManager {
-    // Generate Live Preview
-    static generatePreview() {
-        if (!elements.livePreview) return;
-        
-        const startTime = Date.now();
-        
-        // Generate HTML for preview
-        const html = this.generateHtml();
-        const doc = elements.livePreview.contentDocument || elements.livePreview.contentWindow.document;
-        
-        doc.open();
-        doc.write(html);
-        doc.close();
-        
-        // Add click tracking to links
-        const links = doc.querySelectorAll('a');
-        links.forEach((link, index) => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const linkId = state.links[index]?.id;
-                if (linkId) {
-                    AnalyticsManager.trackClick(linkId);
-                    // In real implementation, this would redirect
-                    // window.open(link.href, '_blank');
-                }
-            });
-        });
-        
-        // Update preview stats
-        const endTime = Date.now();
-        const loadTime = endTime - startTime;
-        const pageSize = new Blob([html]).size / 1024; // KB
-        
-        if (elements.loadTime) {
-            elements.loadTime.textContent = `${loadTime}ms`;
-        }
-        
-        if (elements.pageSize) {
-            elements.pageSize.textContent = `${pageSize.toFixed(2)} KB`;
-        }
-        
-        // Calculate mobile score (simulated)
-        const mobileScore = Math.min(100, 100 - (pageSize * 0.1));
-        if (elements.mobileScore) {
-            elements.mobileScore.textContent = `${mobileScore.toFixed(0)}%`;
-        }
-        
-        // Calculate SEO score (simulated)
-        const seoScore = state.profile.name && state.profile.bio && state.links.length > 0 ? 95 : 70;
-        if (elements.seoScore) {
-            elements.seoScore.textContent = `${seoScore}%`;
-        }
-    }
+// ============ PREVIEW GENERATION ============
+function generatePreview() {
+    showLoading(true);
     
-    // Generate HTML for Export
-    static generateHtml() {
-        const { profile, links, design, social, advanced } = state;
+    setTimeout(() => {
+        const name = document.getElementById('profile-name').value || 'Axelux';
+        const desc = document.getElementById('profile-desc').value;
+        const footer = document.getElementById('footer-text').value || 'Axelux | LinkTree 3D Pro MAX ULTRA';
         
-        // Filter enabled links
-        const enabledLinks = links.filter(link => link.enabled !== false && link.type !== 'folder');
+        // Get button gradient based on selected style
+        const buttonGradients = {
+            pink: 'linear-gradient(135deg, #ff85a1, #ff6b9d)',
+            blue: 'linear-gradient(135deg, #85a7ff, #6b8fff)',
+            green: 'linear-gradient(135deg, #85ffc7, #6bffb8)',
+            purple: 'linear-gradient(135deg, #c285ff, #9933ff)',
+            orange: 'linear-gradient(135deg, #ffb385, #ff9d6b)',
+            red: 'linear-gradient(135deg, #ff3366, #ff0033)',
+            yellow: 'linear-gradient(135deg, #ffd700, #ffaa00)',
+            teal: 'linear-gradient(135deg, #00ffcc, #00cc99)',
+            cyan: 'linear-gradient(135deg, #00ffff, #00cccc)',
+            black: 'linear-gradient(135deg, #000000, #333333)',
+            white: 'linear-gradient(135deg, #ffffff, #cccccc)',
+            gold: 'linear-gradient(135deg, #ffd700, #ffaa00)'
+        };
         
-        // Generate social icons HTML
-        const socialIcons = Object.entries(social)
-            .filter(([_, url]) => url.trim())
-            .map(([platform, url]) => {
-                const icons = {
-                    instagram: 'fab fa-instagram',
-                    tiktok: 'fab fa-tiktok',
-                    youtube: 'fab fa-youtube',
-                    twitter: 'fab fa-twitter',
-                    facebook: 'fab fa-facebook',
-                    whatsapp: 'fab fa-whatsapp',
-                    telegram: 'fab fa-telegram',
-                    discord: 'fab fa-discord',
-                    snapchat: 'fab fa-snapchat',
-                    pinterest: 'fab fa-pinterest',
-                    linkedin: 'fab fa-linkedin',
-                    github: 'fab fa-github',
-                    spotify: 'fab fa-spotify',
-                    email: 'fas fa-envelope',
-                    website: 'fas fa-globe'
-                };
-                
-                return `
-                    <a href="${url}" target="_blank" rel="noopener noreferrer" class="social-icon ${platform}" title="${platform}">
-                        <i class="${icons[platform]}"></i>
-                    </a>
-                `;
-            }).join('');
+        const buttonGradient = buttonGradients[state.colors.button] || buttonGradients.pink;
+        const buttonTextColor = state.colors.button === 'white' || state.colors.button === 'yellow' ? '#000000' : '#ffffff';
         
-        // Generate links HTML
-        const linksHtml = enabledLinks.map(link => `
-            <a href="${link.url}" class="link ${link.highlighted ? 'highlighted' : ''} ${link.pinned ? 'pinned' : ''}" 
-               target="_blank" rel="noopener noreferrer">
-                <div class="link-content">
-                    <i class="${link.icon || 'fas fa-link'}"></i>
-                    <div class="link-text">
-                        <div class="link-title">${link.title}</div>
-                        ${link.description ? `<div class="link-description">${link.description}</div>` : ''}
-                    </div>
-                </div>
-                <i class="fas fa-external-link-alt link-arrow"></i>
-            </a>
-        `).join('');
-        
-        // Get background style
+        // Get background based on selection
         let backgroundStyle = '';
-        switch (design.background.type) {
-            case 'color':
-                backgroundStyle = `background: ${design.background.color};`;
-                break;
-            case 'gradient':
-                const gradients = {
-                    default: `linear-gradient(135deg, ${design.colors.primary}, ${design.colors.secondary})`,
-                    sunset: 'linear-gradient(135deg, #ff6b6b, #ffd166)',
-                    ocean: 'linear-gradient(135deg, #2193b0, #6dd5ed)',
-                    forest: 'linear-gradient(135deg, #1e9600, #fff200)'
-                };
-                backgroundStyle = `background: ${gradients[design.background.gradient] || gradients.default};`;
-                break;
-            case 'image':
-                if (design.background.image) {
-                    backgroundStyle = `background: url('${design.background.image}') center/cover no-repeat;`;
-                }
-                break;
-        }
-        
-        // Get button style
-        let buttonStyle = '';
-        switch (design.buttons.style) {
-            case 'pill':
-                buttonStyle = 'border-radius: 50px;';
-                break;
-            case 'glass':
-                buttonStyle = `
-                    border-radius: 12px;
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                `;
-                break;
-            case 'flat':
-                buttonStyle = 'border-radius: 0;';
-                break;
-            default: // rounded
-                buttonStyle = 'border-radius: 8px;';
-        }
-        
-        // Add button effects
-        if (design.buttons.gradientEffect) {
-            buttonStyle += `background: linear-gradient(135deg, ${design.colors.primary}, ${design.colors.secondary});`;
+        if (state.background.video) {
+            backgroundStyle = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                z-index: -2;
+            `;
         } else {
-            buttonStyle += `background: ${design.colors.primary};`;
+            const backgrounds = {
+                galaxy: 'linear-gradient(135deg, #000428 0%, #004e92 100%)',
+                nebula: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                sunset: 'linear-gradient(135deg, #ff6b6b 0%, #ffd166 100%)',
+                dark: '#000000',
+                ocean: 'linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)',
+                forest: 'linear-gradient(135deg, #1e9600 0%, #fff200 100%)',
+                fire: 'linear-gradient(135deg, #f46b45 0%, #eea849 100%)',
+                ice: 'linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%)',
+                neon: 'linear-gradient(135deg, #ff00ff 0%, #00ffff 100%)',
+                rainbow: 'linear-gradient(135deg, #ff0000, #ff9900, #ffff00, #00ff00, #00ffff, #0000ff, #9900ff)',
+                space: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
+                candy: 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)'
+            };
+            
+            backgroundStyle = backgrounds[state.background.type] || backgrounds.galaxy;
         }
         
-        if (design.buttons.shadowEffect) {
-            buttonStyle += 'box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);';
-        }
+        // Get text background style
+        const textBackgrounds = {
+            glass: `
+                background: rgba(22, 16, 19, ${state.glassEffects.opacity / 100});
+                backdrop-filter: blur(${state.glassEffects.blur}px) brightness(${state.glassEffects.brightness}%);
+                -webkit-backdrop-filter: blur(${state.glassEffects.blur}px) brightness(${state.glassEffects.brightness}%);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            `,
+            solid: `
+                background: rgba(22, 16, 19, 0.95);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            `,
+            gradient: `
+                background: linear-gradient(135deg, rgba(255, 133, 161, 0.1), rgba(133, 167, 255, 0.05));
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            `,
+            transparent: `
+                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            `
+        };
         
-        if (design.buttons.hoverEffect) {
-            buttonStyle += 'transition: all 0.3s ease;';
-        }
-        
-        // Get header style
-        let headerStyle = '';
-        switch (profile.headerStyle) {
-            case 'modern':
-                headerStyle = `
-                    padding: 3rem 2rem;
-                    ${backgroundStyle}
-                `;
-                break;
-            case 'glass':
-                headerStyle = `
-                    padding: 3rem 2rem;
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(10px);
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-                `;
-                break;
-            case 'gradient':
-                headerStyle = `
-                    padding: 3rem 2rem;
-                    background: linear-gradient(135deg, ${design.colors.primary}, ${design.colors.secondary});
-                `;
-                break;
-            default: // minimal
-                headerStyle = 'padding: 2rem 1rem;';
-        }
+        const textBackground = textBackgrounds[state.colors.background] || textBackgrounds.glass;
         
         // Generate HTML
-        return `
+        const html = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${advanced.metaTitle || profile.name + ' | LinkTree'}</title>
-    <meta name="description" content="${advanced.metaDescription || profile.bio.substring(0, 160)}">
-    ${advanced.favicon ? `<link rel="icon" href="${advanced.favicon}">` : ''}
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=${design.font.family.replace(' ', '+')}:wght@${design.font.weight}&display=swap" rel="stylesheet">
+    <title>${state.title.text}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <style>
+        :root {
+            --pink-neon: ${state.colors.primary};
+            --accent-blue: ${state.colors.secondary};
+            --accent-green: ${state.colors.accent};
+            --text-color: ${state.colors.text};
+            --title-color: ${state.title.color};
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: '${design.font.family}', sans-serif;
-            background: ${design.colors.background};
-            color: ${design.colors.text};
-            line-height: 1.6;
-            min-height: 100vh;
+            ${state.background.video ? '' : `background: ${backgroundStyle};`}
+            color: var(--text-color);
+            font-family: 'Plus Jakarta Sans', sans-serif;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 1rem;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        ${state.background.video ? `
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
         }
         
+        #bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+        ` : ''}
+
         .container {
             width: 100%;
             max-width: 500px;
-            margin: 0 auto;
-        }
-        
-        .header {
+            ${textBackground}
+            border-radius: ${state.profileBorder.radius}px;
+            padding: 30px;
             text-align: center;
-            ${headerStyle}
-            border-radius: ${profile.headerStyle === 'minimal' ? '0' : '16px 16px 0 0'};
-            margin-bottom: ${profile.headerStyle === 'minimal' ? '2rem' : '0'};
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.36);
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(${state.background.blur}px);
+            -webkit-backdrop-filter: blur(${state.background.blur}px);
         }
-        
-        .profile-photo {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
+
+        .profile-media-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 25px;
+            position: relative;
+        }
+
+        .profile-media {
+            width: 100%;
+            height: 100%;
+            border-radius: ${state.profileBorder.radius}px;
             overflow: hidden;
-            margin: 0 auto 1.5rem;
-            border: 4px solid ${design.colors.primary};
+            border: ${state.profileBorder.width}px ${state.profileBorder.style} ${state.profileBorder.color};
+            box-shadow: 0 0 ${state.profileBorder.shadow}px ${state.profileBorder.color};
         }
-        
-        .profile-photo img {
+
+        .profile-media img, .profile-media video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
-        .profile-name {
-            font-size: ${design.font.size.title};
-            font-weight: ${design.font.weight};
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+
+        h1 {
+            font-family: 'Syncopate', sans-serif;
+            font-size: ${state.title.size};
+            margin-bottom: 15px;
+            color: var(--title-color);
+            text-shadow: 0 0 10px rgba(255, 133, 161, 0.3);
         }
-        
-        .verified-badge {
-            color: #1DA1F2;
-            font-size: 1.2em;
+
+        .description {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
         }
-        
-        .profile-bio {
-            font-size: ${design.font.size.body};
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 2rem;
-            white-space: pre-line;
-        }
-        
-        .social-icons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .social-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: white;
-            text-decoration: none;
-            transition: transform 0.3s ease;
-        }
-        
-        .social-icon:hover {
-            transform: translateY(-3px);
-        }
-        
+
         .links {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 15px;
+            margin-bottom: 30px;
         }
-        
+
         .link {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1.25rem 1.5rem;
+            background: ${buttonGradient};
+            padding: 18px 25px;
+            border-radius: ${state.profileBorder.radius}px;
             text-decoration: none;
-            color: white;
-            ${buttonStyle}
-        }
-        
-        .link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .link.highlighted {
-            border: 2px solid ${design.colors.primary};
-        }
-        
-        .link.pinned {
-            border-left: 4px solid gold;
-        }
-        
-        .link-content {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex: 1;
-        }
-        
-        .link-content i {
-            font-size: 1.5rem;
-        }
-        
-        .link-text {
-            flex: 1;
-        }
-        
-        .link-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .link-description {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .link-arrow {
-            opacity: 0.7;
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 1.5rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-        }
-        
-        ${!advanced.hideLogo ? `
-        .footer::before {
-            content: '🌲 LinkTree';
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
-        }
-        ` : ''}
-        
-        ${advanced.shareButton ? `
-        .share-button {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: ${design.colors.primary};
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            color: ${buttonTextColor};
             transition: all 0.3s ease;
-            z-index: 100;
+            border: none;
+            cursor: pointer;
+            text-align: left;
         }
-        
-        .share-button:hover {
-            transform: scale(1.1);
+
+        .link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
-        ` : ''}
-        
-        /* Responsive Design */
+
+        .link-content {
+            flex: 1;
+            text-align: left;
+        }
+
+        .link-title {
+            display: block;
+            font-size: 1rem;
+            font-weight: 700;
+            color: ${buttonTextColor};
+            margin-bottom: 5px;
+        }
+
+        .link-description {
+            display: block;
+            font-size: 0.8rem;
+            opacity: 0.9;
+            color: ${buttonTextColor};
+        }
+
+        .link-icon {
+            font-size: 1.5rem;
+            color: ${buttonTextColor};
+            min-width: 40px;
+            text-align: center;
+        }
+
+        footer {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         @media (max-width: 480px) {
-            .profile-photo {
-                width: 100px;
-                height: 100px;
+            .container {
+                padding: 20px;
             }
             
-            .profile-name {
-                font-size: calc(${design.font.size.title} * 0.8);
+            .profile-media-container {
+                width: 120px;
+                height: 120px;
+            }
+            
+            h1 {
+                font-size: calc(${state.title.size} * 0.8);
             }
             
             .link {
-                padding: 1rem 1.25rem;
+                padding: 15px 20px;
             }
-            
-            ${advanced.shareButton ? `
-            .share-button {
-                bottom: 1rem;
-                right: 1rem;
-            }
-            ` : ''}
         }
-        
-        /* Custom CSS */
-        ${advanced.customCSS}
     </style>
 </head>
 <body>
+    ${state.background.video ? `
+    <video id="bg-video" autoplay loop muted playsinline>
+        <source src="${state.background.video}" type="video/mp4">
+    </video>
+    ` : ''}
+    
     <div class="container">
-        <div class="header">
-            ${profile.photo ? `
-            <div class="profile-photo">
-                <img src="${profile.photo}" alt="${profile.name}">
+        <div class="profile-media-container">
+            <div class="profile-media">
+                ${state.profileMedia ? 
+                    (state.profileMediaType === 'video' ? 
+                        `<video src="${state.profileMedia}" autoplay loop muted playsinline></video>` : 
+                        `<img src="${state.profileMedia}" alt="${name}" onerror="this.style.display='none'">`
+                    ) : 
+                    `<div style="width: 100%; height: 100%; background: ${buttonGradient}; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 3rem; color: white;">
+                        ${name.charAt(0).toUpperCase()}
+                    </div>`
+                }
             </div>
-            ` : `
-            <div class="profile-photo" style="background: ${design.colors.primary}; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-user fa-3x" style="color: white;"></i>
-            </div>
-            `}
+        </div>
+        
+        <h1>${name}</h1>
+        <div class="description">${desc.replace(/\n/g, '<br>')}</div>
+        
+        <div class="links">
+            ${state.links.filter(link => link.url && link.title).map(link => `
+            <a href="${link.url}" target="_blank" class="link" rel="noopener noreferrer">
+                <div class="link-content">
+                    <span class="link-title">${link.title}</span>
+                    ${link.description ? `<span class="link-description">${link.description}</span>` : ''}
+                </div>
+                <div class="link-icon">
+                    <i class="${link.icon}"></i>
+                </div>
+            </a>`).join('')}
             
-            <h1 class="profile-name">
-                ${profile.name}
-                ${profile.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
-            </h1>
-            
-            <div class="profile-bio">${profile.bio.replace(/\n/g, '<br>')}</div>
-            
-            ${socialIcons ? `
-            <div class="social-icons">
-                ${socialIcons}
+            ${state.links.length === 0 ? `
+            <div class="link" style="background: rgba(255, 255, 255, 0.1); color: var(--text-color);">
+                <div class="link-content">
+                    <span class="link-title">Add your first link!</span>
+                    <span class="link-description">Click "Add Link" in the editor</span>
+                </div>
+                <div class="link-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
             </div>
             ` : ''}
         </div>
         
-        ${linksHtml ? `
-        <div class="links">
-            ${linksHtml}
-        </div>
-        ` : `
-        <div class="empty-state" style="text-align: center; padding: 3rem 1rem; opacity: 0.7;">
-            <i class="fas fa-link fa-3x" style="margin-bottom: 1rem;"></i>
-            <h3>No Links Yet</h3>
-            <p>Check back soon for updates!</p>
-        </div>
-        `}
-        
-        <div class="footer">
-            ${advanced.customFooter || '© 2024 LinkTree'}
-        </div>
+        <footer>${footer}</footer>
     </div>
-    
-    ${advanced.shareButton ? `
-    <div class="share-button" onclick="sharePage()">
-        <i class="fas fa-share-alt"></i>
-    </div>
-    ` : ''}
     
     <script>
-        // Share functionality
-        function sharePage() {
-            if (navigator.share) {
-                navigator.share({
-                    title: document.title,
-                    url: window.location.href
-                });
-            } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert('Link copied to clipboard!');
-            }
+        // Background video autoplay
+        const bgVideo = document.getElementById('bg-video');
+        if (bgVideo) {
+            bgVideo.play().catch(e => {
+                console.log('Autoplay prevented, waiting for interaction');
+                document.addEventListener('click', () => bgVideo.play(), { once: true });
+            });
         }
         
-        // Add click animations
+        // Add click effects to links
         document.querySelectorAll('.link').forEach(link => {
             link.addEventListener('click', function(e) {
-                this.style.transform = 'scale(0.98)';
+                this.style.transform = 'scale(0.95)';
                 setTimeout(() => {
                     this.style.transform = '';
                 }, 150);
             });
         });
         
-        // Add parallax effect on mouse move
+        // Add parallax effect
         document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth) * 20 - 10;
-            const y = (e.clientY / window.innerHeight) * 20 - 10;
-            document.querySelector('.container').style.transform = 
-                \`perspective(1000px) rotateY(\${x}deg) rotateX(\${-y}deg)\`;
+            const container = document.querySelector('.container');
+            if (container) {
+                const x = (e.clientX / window.innerWidth) * 20 - 10;
+                const y = (e.clientY / window.innerHeight) * 20 - 10;
+                container.style.transform = \`perspective(1000px) rotateY(\${x}deg) rotateX(\${-y}deg)\`;
+            }
         });
     </script>
 </body>
-</html>
-        `;
-    }
-    
-    // Switch Preview Device
-    static switchPreviewDevice(device) {
-        if (!elements.previewDevice) return;
-        
-        elements.deviceButtons.forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.getAttribute('data-device') === device) {
-                btn.classList.add('active');
-            }
-        });
-        
-        switch (device) {
-            case 'tablet':
-                elements.previewDevice.style.maxWidth = '768px';
-                elements.previewDevice.style.height = '1024px';
-                break;
-            case 'mobile':
-                elements.previewDevice.style.maxWidth = '375px';
-                elements.previewDevice.style.height = '667px';
-                break;
-            default: // desktop
-                elements.previewDevice.style.maxWidth = '100%';
-                elements.previewDevice.style.height = '600px';
-        }
-    }
-    
-    // Open Fullscreen Preview
-    static openFullscreenPreview() {
-        const html = this.generateHtml();
-        const newWindow = window.open('', '_blank');
-        newWindow.document.write(html);
-        newWindow.document.close();
-    }
-    
-    // Open Mobile Preview
-    static openMobilePreview() {
-        elements.mobileModal.classList.add('active');
-        
-        // Generate HTML for mobile preview
-        const html = this.generateHtml();
-        const doc = elements.mobilePreviewFrame.contentDocument || 
-                   elements.mobilePreviewFrame.contentWindow.document;
-        
+</html>`;
+                
+        // Update iframe
+        const iframe = document.getElementById('preview-iframe');
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
         doc.open();
         doc.write(html);
         doc.close();
-    }
+        
+        // Update code modal
+        document.getElementById('code-output').textContent = html;
+        
+        // Show preview
+        document.getElementById('preview-placeholder').style.display = 'none';
+        iframe.style.display = 'block';
+        
+        showLoading(false);
+        showToast('Preview generated!', 'success');
+        
+    }, 800);
+}
+
+// ============ UI FUNCTIONS ============
+function showLoading(show) {
+    document.getElementById('preview-loading').style.display = show ? 'block' : 'none';
+}
+
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
     
-    // Generate QR Code
-    static generateQrCode() {
-        elements.qrModal.classList.add('active');
-        
-        // Generate a demo URL (in real implementation, this would be the actual URL)
-        const demoUrl = 'https://linktree.example.com/' + state.profile.name.toLowerCase().replace(/\s+/g, '-');
-        
-        // Clear previous QR code
-        elements.qrCode.innerHTML = '';
-        
-        // Generate QR code
-        QRCode.toCanvas(elements.qrCode, demoUrl, {
-            width: 200,
-            height: 200,
-            color: {
-                dark: state.design.colors.primary,
-                light: '#ffffff'
-            }
-        }, (error) => {
-            if (error) {
-                Utils.showToast('Error generating QR code', 'error');
-                console.error(error);
-            }
-        });
-    }
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+function showCodeModal() {
+    document.getElementById('code-modal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    showToast('Code view opened!', 'success');
+}
+
+function closeCodeModal() {
+    document.getElementById('code-modal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function copyCode() {
+    const code = document.getElementById('code-output').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        showToast('Code copied to clipboard!', 'success');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = code;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('Code copied!', 'success');
+    });
+}
+
+function downloadCode() {
+    const code = document.getElementById('code-output').textContent;
+    const name = document.getElementById('profile-name').value || 'axelux';
+    const blob = new Blob([code], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `linktree-${name.toLowerCase().replace(/\s+/g, '-')}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('HTML file downloaded!', 'success');
+}
+
+function downloadHTML() {
+    generatePreview();
+    showToast('Generating download...', 'info');
+    setTimeout(() => {
+        const code = document.getElementById('code-output').textContent;
+        const name = document.getElementById('profile-name').value || 'axelux';
+        const blob = new Blob([code], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `linktree-pro-max-${name.toLowerCase().replace(/\s+/g, '-')}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Premium HTML downloaded!', 'success');
+    }, 1000);
+}
+
+// ============ ICON SELECTOR ============
+function openIconSelector() {
+    const modal = document.getElementById('icon-modal');
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
     
-    // Download QR Code
-    static downloadQrCode() {
-        const canvas = elements.qrCode.querySelector('canvas');
-        if (!canvas) return;
-        
-        const link = document.createElement('a');
-        link.download = `qrcode-${state.profile.name.toLowerCase().replace(/\s+/g, '-')}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        
-        Utils.showToast('QR code downloaded!', 'success');
-    }
-    
-    // Copy QR Code
-    static copyQrCode() {
-        const canvas = elements.qrCode.querySelector('canvas');
-        if (!canvas) return;
-        
-        canvas.toBlob((blob) => {
-            const item = new ClipboardItem({ 'image/png': blob });
-            navigator.clipboard.write([item])
-                .then(() => Utils.showToast('QR code copied to clipboard!', 'success'))
-                .catch(() => Utils.showToast('Failed to copy QR code', 'error'));
-        });
+    // Load icons if not already loaded
+    if (!document.getElementById('icon-grid').children.length) {
+        loadIcons();
     }
 }
 
-// ===== EXPORT MANAGER =====
-class ExportManager {
-    // Update Code Preview
-    static updateCodePreview() {
-        const html = PreviewManager.generateHtml();
+function closeIconModal() {
+    document.getElementById('icon-modal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function loadIcons() {
+    const icons = [
+        // Brand icons
+        'fab fa-whatsapp', 'fab fa-instagram', 'fab fa-youtube', 'fab fa-tiktok', 'fab fa-telegram',
+        'fab fa-github', 'fab fa-twitter', 'fab fa-facebook', 'fab fa-linkedin', 'fab fa-discord',
+        'fab fa-snapchat', 'fab fa-reddit', 'fab fa-pinterest', 'fab fa-twitch', 'fab fa-spotify',
+        'fab fa-apple', 'fab fa-android', 'fab fa-windows', 'fab fa-linux', 'fab fa-google',
+        'fab fa-amazon', 'fab fa-paypal', 'fab fa-stripe', 'fab fa-shopify', 'fab fa-wordpress',
         
-        // Extract CSS from HTML
-        const cssMatch = html.match(/<style>([\s\S]*?)<\/style>/);
-        const css = cssMatch ? cssMatch[1] : '';
-        
-        // Extract JS from HTML
-        const jsMatch = html.match(/<script>([\s\S]*?)<\/script>/);
-        const js = jsMatch ? jsMatch[1] : '';
-        
-        // Clean HTML (remove style and script tags)
-        const cleanHtml = html
-            .replace(/<style>[\s\S]*?<\/style>/g, '')
-            .replace(/<script>[\s\S]*?<\/script>/g, '');
-        
-        // Update code displays
-        if (elements.htmlCode) {
-            elements.htmlCode.querySelector('code').textContent = cleanHtml;
-        }
-        
-        if (elements.cssCode) {
-            elements.cssCode.querySelector('code').textContent = css;
-        }
-        
-        if (elements.jsCode) {
-            elements.jsCode.querySelector('code').textContent = js;
-        }
-        
-        // Also update source modal
-        if (elements.sourceHtml) {
-            elements.sourceHtml.querySelector('code').textContent = cleanHtml;
-        }
-        
-        if (elements.sourceCss) {
-            elements.sourceCss.querySelector('code').textContent = css;
-        }
-        
-        if (elements.sourceJs) {
-            elements.sourceJs.querySelector('code').textContent = js;
-        }
-    }
+        // Solid icons
+        'fas fa-home', 'fas fa-user', 'fas fa-users', 'fas fa-cog', 'fas fa-wrench',
+        'fas fa-search', 'fas fa-bell', 'fas fa-envelope', 'fas fa-phone', 'fas fa-globe',
+        'fas fa-map-marker', 'fas fa-calendar', 'fas fa-clock', 'fas fa-star', 'fas fa-heart',
+        'fas fa-thumbs-up', 'fas fa-share', 'fas fa-download', 'fas fa-upload', 'fas fa-print',
+        'fas fa-save', 'fas fa-trash', 'fas fa-edit', 'fas fa-plus', 'fas fa-minus',
+        'fas fa-times', 'fas fa-check', 'fas fa-exclamation', 'fas fa-question', 'fas fa-info',
+        'fas fa-camera', 'fas fa-video', 'fas fa-music', 'fas fa-film', 'fas fa-gamepad',
+        'fas fa-book', 'fas fa-newspaper', 'fas fa-graduation-cap', 'fas fa-briefcase', 'fas fa-shopping-cart',
+        'fas fa-credit-card', 'fas fa-money-bill', 'fas fa-chart-line', 'fas fa-chart-bar', 'fas fa-chart-pie',
+        'fas fa-database', 'fas fa-server', 'fas fa-network-wired', 'fas fa-wifi', 'fas fa-bluetooth',
+        'fas fa-cloud', 'fas fa-cloud-upload', 'fas fa-cloud-download', 'fas fa-code', 'fas fa-terminal',
+        'fas fa-laptop', 'fas fa-mobile', 'fas fa-tablet', 'fas fa-desktop', 'fas fa-keyboard',
+        'fas fa-mouse', 'fas fa-headphones', 'fas fa-microphone', 'fas fa-volume-up', 'fas fa-image',
+        'fas fa-palette', 'fas fa-brush', 'fas fa-pencil-alt', 'fas fa-eraser', 'fas fa-crop',
+        'fas fa-filter', 'fas fa-bolt', 'fas fa-fire', 'fas fa-water', 'fas fa-leaf',
+        'fas fa-mountain', 'fas fa-tree', 'fas fa-umbrella-beach', 'fas fa-sun', 'fas fa-moon',
+        'fas fa-cloud-sun', 'fas fa-cloud-rain', 'fas fa-snowflake', 'fas fa-wind', 'fas fa-temperature-high',
+        'fas fa-car', 'fas fa-bus', 'fas fa-train', 'fas fa-plane', 'fas fa-ship',
+        'fas fa-bicycle', 'fas fa-walking', 'fas fa-running', 'fas fa-swimmer', 'fas fa-dumbbell',
+        'fas fa-football-ball', 'fas fa-basketball-ball', 'fas fa-baseball-ball', 'fas fa-volleyball-ball', 'fas fa-futbol',
+        'fas fa-utensils', 'fas fa-coffee', 'fas fa-wine-glass', 'fas fa-cocktail', 'fas fa-beer',
+        'fas fa-pizza-slice', 'fas fa-hamburger', 'fas fa-ice-cream', 'fas fa-cookie', 'fas fa-cake',
+        'fas fa-heartbeat', 'fas fa-hospital', 'fas fa-ambulance', 'fas fa-pills', 'fas fa-syringe',
+        'fas fa-stethoscope', 'fas fa-user-md', 'fas fa-plus-square', 'fas fa-minus-square', 'fas fa-times-circle',
+        'fas fa-check-circle', 'fas fa-question-circle', 'fas fa-info-circle', 'fas fa-exclamation-circle', 'fas fa-exclamation-triangle',
+        'fas fa-ban', 'fas fa-lock', 'fas fa-unlock', 'fas fa-key', 'fas fa-shield-alt',
+        'fas fa-fingerprint', 'fas fa-qrcode', 'fas fa-barcode', 'fas fa-tag', 'fas fa-tags',
+        'fas fa-shopping-bag', 'fas fa-shopping-basket', 'fas fa-gift', 'fas fa-gem', 'fas fa-crown',
+        'fas fa-trophy', 'fas fa-medal', 'fas fa-flag', 'fas fa-rocket', 'fas fa-plane-departure',
+        'fas fa-plane-arrival', 'fas fa-passport', 'fas fa-suitcase', 'fas fa-suitcase-rolling', 'fas fa-map',
+        'fas fa-map-marked', 'fas fa-map-marked-alt', 'fas fa-compass', 'fas fa-directions', 'fas fa-road',
+        'fas fa-sign', 'fas fa-traffic-light', 'fas fa-car-crash', 'fas fa-gas-pump', 'fas fa-wrench',
+        'fas fa-tools', 'fas fa-hammer', 'fas fa-screwdriver', 'fas fa-ruler', 'fas fa-ruler-combined',
+        'fas fa-weight', 'fas fa-balance-scale', 'fas fa-percentage', 'fas fa-calculator', 'fas fa-chalkboard',
+        'fas fa-chalkboard-teacher', 'fas fa-school', 'fas fa-university', 'fas fa-graduation-cap', 'fas fa-certificate',
+        'fas fa-language', 'fas fa-globe-americas', 'fas fa-globe-europe', 'fas fa-globe-asia', 'fas fa-globe-africa',
+        'fas fa-comments', 'fas fa-comment', 'fas fa-comment-alt', 'fas fa-comment-dots', 'fas fa-comment-medical',
+        'fas fa-smile', 'fas fa-frown', 'fas fa-meh', 'fas fa-grin', 'fas fa-grin-stars',
+        'fas fa-grin-beam', 'fas fa-grin-beam-sweat', 'fas fa-grin-wink', 'fas fa-grin-tongue', 'fas fa-grin-tongue-wink',
+        'fas fa-kiss', 'fas fa-kiss-beam', 'fas fa-kiss-wink-heart', 'fas fa-angry', 'fas fa-dizzy',
+        'fas fa-flushed', 'fas fa-surprise', 'fas fa-tired', 'fas fa-sad-tear', 'fas fa-sad-cry'
+    ];
     
-    // Switch Code Tab
-    static switchCodeTab(codeType) {
-        elements.codeTabs.forEach(tab => {
-            tab.classList.remove('active');
-            if (tab.getAttribute('data-code') === codeType) {
-                tab.classList.add('active');
-            }
+    const container = document.getElementById('icon-grid');
+    icons.forEach(iconClass => {
+        const iconName = iconClass.replace('fab fa-', '').replace('fas fa-', '');
+        const div = document.createElement('div');
+        div.className = 'icon-option';
+        div.setAttribute('data-icon', iconClass);
+        div.innerHTML = `<i class="${iconClass}"></i><span>${iconName}</span>`;
+        
+        div.addEventListener('click', () => {
+            container.querySelectorAll('.icon-option').forEach(el => el.classList.remove('active'));
+            div.classList.add('active');
+            state.selectedIcon = iconClass;
         });
         
-        const codeElements = [elements.htmlCode, elements.cssCode, elements.jsCode];
-        codeElements.forEach(el => el?.classList.remove('active'));
+        container.appendChild(div);
+    });
+}
+
+function searchIcons() {
+    const searchTerm = document.getElementById('icon-search').value.toLowerCase();
+    const icons = document.querySelectorAll('.icon-option');
+    
+    icons.forEach(icon => {
+        const iconName = icon.getAttribute('data-icon').toLowerCase();
+        const displayName = icon.querySelector('span').textContent.toLowerCase();
         
-        if (codeType === 'html' && elements.htmlCode) {
-            elements.htmlCode.classList.add('active');
-        } else if (codeType === 'css' && elements.cssCode) {
-            elements.cssCode.classList.add('active');
-        } else if (codeType === 'js' && elements.jsCode) {
-            elements.jsCode.classList.add('active');
+        if (iconName.includes(searchTerm) || displayName.includes(searchTerm)) {
+            icon.style.display = 'block';
+        } else {
+            icon.style.display = 'none';
         }
-    }
-    
-    // Switch Source Tab
-    static switchSourceTab(sourceType) {
-        elements.sourceTabs.forEach(tab => {
-            tab.classList.remove('active');
-            if (tab.getAttribute('data-source') === sourceType) {
-                tab.classList.add('active');
-            }
-        });
-        
-        const sourceElements = [elements.sourceHtml, elements.sourceCss, elements.sourceJs];
-        sourceElements.forEach(el => el?.classList.remove('active'));
-        
-        if (sourceType === 'html' && elements.sourceHtml) {
-            elements.sourceHtml.classList.add('active');
-        } else if (sourceType === 'css' && elements.sourceCss) {
-            elements.sourceCss.classList.add('active');
-        } else if (sourceType === 'js' && elements.sourceJs) {
-            elements.sourceJs.classList.add('active');
-        }
-    }
-    
-    // Copy All Code
-    static copyAllCode() {
-        const html = elements.htmlCode?.querySelector('code').textContent || '';
-        const css = elements.cssCode?.querySelector('code').textContent || '';
-        const js = elements.jsCode?.querySelector('code').textContent || '';
-        
-        const allCode = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${state.profile.name} | LinkTree</title>
-    <style>${css}</style>
-</head>
-<body>
-${html}
-<script>${js}</script>
-</body>
-</html>`;
-        
-        Utils.copyToClipboard(allCode)
-            .then(() => Utils.showToast('All code copied to clipboard!', 'success'));
-    }
-    
-    // Download All Code
-    static downloadAllCode() {
-        const html = PreviewManager.generateHtml();
-        const filename = `linktree-${state.profile.name.toLowerCase().replace(/\s+/g, '-')}.html`;
-        Utils.downloadFile(html, filename, 'text/html');
-        Utils.showToast('HTML file downloaded!', 'success');
-    }
-    
-    // Export as HTML
-    static exportAsHtml() {
-        const html = PreviewManager.generateHtml();
-        const filename = `linktree-${state.profile.name.toLowerCase().replace(/\s+/g, '-')}.html`;
-        Utils.downloadFile(html, filename, 'text/html');
-        Utils.showToast('HTML file exported successfully!', 'success');
-    }
-    
-    // View Source Code
-    static viewSourceCode() {
-        this.updateCodePreview();
-        elements.sourceModal.classList.add('active');
-        this.switchSourceTab('html');
-    }
-    
-    // Copy Source Code
-    static copySourceCode() {
-        const activeTab = document.querySelector('.source-tab.active');
-        if (!activeTab) return;
-        
-        const sourceType = activeTab.getAttribute('data-source');
-        let code = '';
-        
-        if (sourceType === 'html') {
-            code = elements.sourceHtml?.querySelector('code').textContent || '';
-        } else if (sourceType === 'css') {
-            code = elements.sourceCss?.querySelector('code').textContent || '';
-        } else if (sourceType === 'js') {
-            code = elements.sourceJs?.querySelector('code').textContent || '';
-        }
-        
-        Utils.copyToClipboard(code)
-            .then(() => Utils.showToast(`${sourceType.toUpperCase()} code copied!`, 'success'));
-    }
-    
-    // Download Source Code
-    static downloadSourceCode() {
-        const activeTab = document.querySelector('.source-tab.active');
-        if (!activeTab) return;
-        
-        const sourceType = activeTab.getAttribute('data-source');
-        let code = '';
-        let filename = '';
-        
-        if (sourceType === 'html') {
-            code = elements.sourceHtml?.querySelector('code').textContent || '';
-            filename = `linktree-${state.profile.name.toLowerCase().replace(/\s+/g, '-')}.html`;
-        } else if (sourceType === 'css') {
-            code = elements.sourceCss?.querySelector('code').textContent || '';
-            filename = `linktree-${state.profile.name.toLowerCase().replace(/\s+/g, '-')}.css`;
-        } else if (sourceType === 'js') {
-            code = elements.sourceJs?.querySelector('code').textContent || '';
-            filename = `linktree-${state.profile.name.toLowerCase().replace(/\s+/g, '-')}.js`;
-        }
-        
-        Utils.downloadFile(code, filename, 'text/plain');
-        Utils.showToast(`${sourceType.toUpperCase()} file downloaded!`, 'success');
-    }
-    
-    // Export as JSON
-    static exportAsJson() {
-        const exportData = {
-            profile: state.profile,
-            links: state.links,
-            design: state.design,
-            social: state.social,
-            advanced: state.advanced,
-            exportDate: new Date().toISOString(),
-            version: '3.0.0'
-        };
-        
-        const json = JSON.stringify(exportData, null, 2);
-        const filename = `linktree-${state.profile.name.toLowerCase().replace(/\s+/g, '-')}.json`;
-        Utils.downloadFile(json, filename, 'application/json');
-        Utils.showToast('Project exported as JSON!', 'success');
-    }
-    
-    // Import from JSON
-    static importFromJson() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    });
+}
+
+function selectIcon() {
+    if (state.currentIcon && state.selectedIcon) {
+        // Update the link with selected icon
+        const link = state.links.find(l => l.id === state.currentIcon);
+        if (link) {
+            link.icon = state.selectedIcon;
             
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    // Validate data structure
-                    if (!data.profile || !data.links) {
-                        throw new Error('Invalid project file');
-                    }
-                    
-                    // Import data
-                    state.profile = { ...state.profile, ...data.profile };
-                    state.links = data.links || [];
-                    state.design = { ...state.design, ...data.design };
-                    state.social = { ...state.social, ...data.social };
-                    state.advanced = { ...state.advanced, ...data.advanced };
-                    
-                    // Update UI
-                    ProfileManager.updateProfilePhotoPreview();
-                    LinksManager.renderLinks();
-                    DesignManager.applyCustomColors();
-                    App.updateUI();
-                    App.generatePreview();
-                    
-                    Utils.showToast('Project imported successfully!', 'success');
-                } catch (error) {
-                    console.error('Import error:', error);
-                    Utils.showToast('Error importing project file', 'error');
-                }
-            };
-            reader.readAsText(file);
-        };
-        
-        input.click();
+            // Update in UI
+            const linkElement = document.getElementById(`link-${state.currentIcon}`);
+            if (linkElement) {
+                linkElement.querySelector('.fa-lg, .fab, .fas').className = state.selectedIcon;
+                const select = linkElement.querySelector('.link-icon-select');
+                Array.from(select.options).forEach(option => {
+                    option.selected = option.value === state.selectedIcon;
+                });
+            }
+            
+            generatePreview();
+            showToast('Icon updated!', 'success');
+        }
     }
     
-    // Generate Shareable Link
-    static generateShareableLink() {
-        // In a real implementation, this would upload to a server and return a URL
-        // For demo purposes, we'll create a data URL
-        
-        const exportData = {
-            profile: state.profile,
-            links: state.links,
-            design: state.design,
-            social: state.social,
-            advanced: state.advanced,
-            exportDate: new Date().toISOString()
-        };
-        
-        const json = JSON.stringify(exportData);
-        const dataUrl = `data:application/json;base64,${btoa(json)}`;
-        
-        // Copy to clipboard
-        Utils.copyToClipboard(dataUrl)
-            .then(() => Utils.showToast('Shareable link copied to clipboard!', 'success'))
-            .catch(() => {
-                // Fallback: show the data URL
-                prompt('Copy this link to share:', dataUrl);
+    closeIconModal();
+}
+
+// ============ CAMERA FUNCTIONS ============
+let cameraStream = null;
+
+function startCamera() {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                cameraStream = stream;
+                const video = document.getElementById('camera-preview');
+                video.srcObject = stream;
+                video.style.display = 'block';
+                video.play();
+                
+                document.getElementById('camera-controls').style.display = 'flex';
+                document.getElementById('start-camera-btn').style.display = 'none';
+                
+                showToast('Camera started!', 'success');
+            })
+            .catch(err => {
+                console.error('Camera error:', err);
+                showToast('Cannot access camera: ' + err.message, 'error');
             });
+    } else {
+        showToast('Camera not supported on this device', 'error');
     }
 }
 
-// ===== CSS EDITOR =====
-class CssEditor {
-    // Open CSS Editor
-    static openCssEditor() {
-        elements.cssModal.classList.add('active');
-        elements.customCss.value = state.advanced.customCSS;
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+        
+        const video = document.getElementById('camera-preview');
+        video.srcObject = null;
+        video.style.display = 'none';
+        
+        document.getElementById('camera-controls').style.display = 'none';
+        document.getElementById('start-camera-btn').style.display = 'block';
+        
+        showToast('Camera stopped', 'warning');
+    }
+}
+
+function capturePhoto() {
+    const video = document.getElementById('camera-preview');
+    const canvas = document.getElementById('photo-canvas');
+    const context = canvas.getContext('2d');
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    const dataUrl = canvas.toDataURL('image/png');
+    
+    // Set as profile image
+    state.profileMedia = dataUrl;
+    state.profileMediaType = 'image';
+    
+    const preview = document.getElementById('profile-preview');
+    const img = document.getElementById('profile-img-preview');
+    const videoElement = document.getElementById('profile-video-preview');
+    
+    preview.style.display = 'block';
+    videoElement.style.display = 'none';
+    img.style.display = 'block';
+    img.src = dataUrl;
+    
+    updateProfileBorderPreview();
+    generatePreview();
+    
+    // Stop camera after capture
+    stopCamera();
+    
+    showToast('Photo captured!', 'success');
+}
+
+// ============ COLOR FUNCTIONS ============
+function applyCustomColors() {
+    // Update CSS variables
+    document.documentElement.style.setProperty('--pink-neon', state.colors.primary);
+    document.documentElement.style.setProperty('--accent-blue', state.colors.secondary);
+    document.documentElement.style.setProperty('--accent-green', state.colors.accent);
+    
+    // Update state
+    state.profileBorder.color = state.colors.primary;
+    updateProfileBorderPreview();
+    
+    generatePreview();
+    showToast('Custom colors applied!', 'success');
+}
+
+function applyColorPreset(preset) {
+    let primary, secondary, accent;
+    
+    switch(preset) {
+        case 'neon':
+            primary = '#ff00ff';
+            secondary = '#00ffff';
+            accent = '#ffff00';
+            break;
+        case 'dark':
+            primary = '#333333';
+            secondary = '#666666';
+            accent = '#999999';
+            break;
+        case 'pastel':
+            primary = '#ffb6c1';
+            secondary = '#b6e3ff';
+            accent = '#c9ffb6';
+            break;
+        case 'sunset':
+            primary = '#ff6b6b';
+            secondary = '#ffd166';
+            accent = '#06d6a0';
+            break;
     }
     
-    // Save Custom CSS
-    static saveCustomCss() {
-        state.advanced.customCSS = elements.customCss.value;
-        elements.cssModal.classList.remove('active');
-        App.generatePreview();
-        Utils.showToast('Custom CSS saved!', 'success');
-    }
+    state.colors.primary = primary;
+    state.colors.secondary = secondary;
+    state.colors.accent = accent;
+    
+    // Update color pickers
+    document.getElementById('custom-primary-color').value = primary;
+    document.getElementById('custom-secondary-color').value = secondary;
+    document.getElementById('custom-accent-color').value = accent;
+    
+    applyCustomColors();
+    showToast(`${preset} color preset applied!`, 'success');
 }
 
-// ===== LOCAL STORAGE =====
-class StorageManager {
-    // Save to Local Storage
-    static saveToLocalStorage() {
+// ============ PROFILE EDITING ============
+function editProfile() {
+    showToast('Edit feature coming soon!', 'info');
+    // Implement advanced editing modal here
+}
+
+function cropProfile() {
+    showToast('Crop feature coming soon!', 'info');
+    // Implement cropping functionality here
+}
+
+function filterProfile() {
+    showToast('Filter feature coming soon!', 'info');
+    // Implement filter functionality here
+}
+
+// ============ PROJECT MANAGEMENT ============
+function saveProject() {
+    const project = {
+        profile: {
+            media: state.profileMedia,
+            mediaType: state.profileMediaType,
+            name: document.getElementById('profile-name').value,
+            desc: document.getElementById('profile-desc').value
+        },
+        border: state.profileBorder,
+        colors: state.colors,
+        glassEffects: state.glassEffects,
+        background: state.background,
+        title: state.title,
+        links: state.links,
+        footer: document.getElementById('footer-text').value
+    };
+    
+    const json = JSON.stringify(project, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'linktree-project.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('Project saved!', 'success');
+}
+
+function saveState() {
+    const stateToSave = {
+        profile: {
+            media: state.profileMedia,
+            mediaType: state.profileMediaType,
+            name: document.getElementById('profile-name').value,
+            desc: document.getElementById('profile-desc').value
+        },
+        border: state.profileBorder,
+        colors: state.colors,
+        glassEffects: state.glassEffects,
+        background: state.background,
+        title: state.title,
+        links: state.links,
+        footer: document.getElementById('footer-text').value
+    };
+    
+    localStorage.setItem('linktreeProject', JSON.stringify(stateToSave));
+}
+
+function loadSavedState() {
+    const saved = localStorage.getItem('linktreeProject');
+    if (saved) {
         try {
-            const saveData = {
-                profile: state.profile,
-                links: state.links,
-                design: state.design,
-                social: state.social,
-                analytics: state.analytics,
-                advanced: state.advanced,
-                lastSave: new Date().toISOString()
-            };
+            const project = JSON.parse(saved);
             
-            localStorage.setItem('linktreeGodMode', JSON.stringify(saveData));
-            return true;
-        } catch (error) {
-            console.error('Save error:', error);
-            return false;
+            // Load profile
+            if (project.profile) {
+                document.getElementById('profile-name').value = project.profile.name || '';
+                document.getElementById('profile-desc').value = project.profile.desc || '';
+                
+                if (project.profile.media) {
+                    state.profileMedia = project.profile.media;
+                    state.profileMediaType = project.profile.mediaType;
+                    
+                    const preview = document.getElementById('profile-preview');
+                    const img = document.getElementById('profile-img-preview');
+                    const video = document.getElementById('profile-video-preview');
+                    
+                    preview.style.display = 'block';
+                    
+                    if (project.profile.mediaType === 'video') {
+                        video.style.display = 'block';
+                        img.style.display = 'none';
+                        video.src = project.profile.media;
+                        video.load();
+                    } else {
+                        video.style.display = 'none';
+                        img.style.display = 'block';
+                        img.src = project.profile.media;
+                    }
+                }
+            }
+            
+            // Load border
+            if (project.border) {
+                state.profileBorder = project.border;
+                updateProfileBorderPreview();
+                
+                // Update sliders
+                document.getElementById('border-width').value = state.profileBorder.width;
+                document.getElementById('border-width-value').textContent = state.profileBorder.width + 'px';
+                document.getElementById('border-radius').value = state.profileBorder.radius;
+                document.getElementById('border-radius-value').textContent = state.profileBorder.radius + 'px';
+                document.getElementById('border-shadow').value = state.profileBorder.shadow;
+                document.getElementById('border-shadow-value').textContent = state.profileBorder.shadow + 'px';
+                document.getElementById('border-custom-color').value = state.profileBorder.color;
+                
+                // Update border style
+                document.querySelectorAll('.border-style').forEach(style => {
+                    style.classList.remove('active');
+                    if (style.dataset.style === state.profileBorder.style) {
+                        style.classList.add('active');
+                    }
+                });
+            }
+            
+            // Load colors
+            if (project.colors) {
+                state.colors = project.colors;
+                
+                // Update color pickers
+                document.getElementById('custom-primary-color').value = state.colors.primary;
+                document.getElementById('custom-secondary-color').value = state.colors.secondary;
+                document.getElementById('custom-accent-color').value = state.colors.accent;
+                
+                // Update button styles
+                document.querySelectorAll('.button-style').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.buttonStyle === state.colors.button) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+            
+            // Load glass effects
+            if (project.glassEffects) {
+                state.glassEffects = project.glassEffects;
+                
+                // Update sliders
+                document.getElementById('glass-opacity').value = state.glassEffects.opacity;
+                document.getElementById('glass-opacity-value').textContent = state.glassEffects.opacity + '%';
+                document.getElementById('glass-blur').value = state.glassEffects.blur;
+                document.getElementById('glass-blur-value').textContent = state.glassEffects.blur + 'px';
+                document.getElementById('glass-brightness').value = state.glassEffects.brightness;
+                document.getElementById('glass-brightness-value').textContent = state.glassEffects.brightness + '%';
+                document.getElementById('saturation-effect').value = state.glassEffects.saturation;
+                document.getElementById('saturation-value').textContent = state.glassEffects.saturation + '%';
+            }
+            
+            // Load background
+            if (project.background) {
+                state.background = project.background;
+                
+                // Update background gallery
+                document.querySelectorAll('.bg-option').forEach(option => {
+                    option.classList.remove('active');
+                    if (option.dataset.bgType === state.background.type) {
+                        option.classList.add('active');
+                    }
+                });
+                
+                // Update sliders
+                document.getElementById('blur-effect').value = state.background.blur;
+                document.getElementById('blur-value').textContent = state.background.blur + 'px';
+                document.getElementById('opacity-effect').value = state.background.opacity;
+                document.getElementById('opacity-value').textContent = state.background.opacity + '%';
+                
+                // Load video background if exists
+                if (state.background.video) {
+                    const previewContainer = document.getElementById('video-bg-preview-container');
+                    const video = document.getElementById('video-bg-preview');
+                    
+                    previewContainer.style.display = 'block';
+                    video.src = state.background.video;
+                    video.load();
+                }
+            }
+            
+            // Load title
+            if (project.title) {
+                state.title = project.title;
+                document.getElementById('page-title').value = state.title.text;
+                document.getElementById('title-size').value = parseFloat(state.title.size);
+                document.getElementById('title-size-value').textContent = state.title.size;
+                document.getElementById('title-color').value = state.title.color;
+            }
+            
+            // Load links
+            if (project.links) {
+                state.links = project.links;
+                document.getElementById('links-list').innerHTML = '';
+                
+                project.links.forEach(link => {
+                    addLink(link);
+                });
+            }
+            
+            // Load footer
+            if (project.footer) {
+                document.getElementById('footer-text').value = project.footer;
+            }
+            
+            updateStats();
+            generatePreview();
+            showToast('Project loaded from auto-save!', 'success');
+            
+        } catch (e) {
+            console.error('Error loading saved state:', e);
         }
     }
+}
+
+function shareProject() {
+    // Generate a shareable URL with project data
+    const project = {
+        profile: {
+            name: document.getElementById('profile-name').value,
+            desc: document.getElementById('profile-desc').value
+        },
+        border: state.profileBorder,
+        colors: state.colors,
+        title: state.title
+    };
     
-    // Load from Local Storage
-    static loadFromLocalStorage() {
-        try {
-            const saved = localStorage.getItem('linktreeGodMode');
-            if (!saved) return false;
-            
-            const data = JSON.parse(saved);
-            
-            // Load data with fallbacks
-            state.profile = { ...state.profile, ...data.profile };
-            state.links = data.links || [];
-            state.design = { ...state.design, ...data.design };
-            state.social = { ...state.social, ...data.social };
-            state.analytics = { ...state.analytics, ...data.analytics };
-            state.advanced = { ...state.advanced, ...data.advanced };
-            
-            return true;
-        } catch (error) {
-            console.error('Load error:', error);
-            return false;
-        }
+    const data = btoa(JSON.stringify(project));
+    const url = `${window.location.origin}${window.location.pathname}?project=${encodeURIComponent(data)}`;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(url).then(() => {
+        showToast('Shareable URL copied to clipboard!', 'success');
+    }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = url;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('Shareable URL copied!', 'success');
+    });
+}
+
+function resetProject() {
+    if (confirm('Are you sure you want to reset everything? This cannot be undone.')) {
+        // Reset profile
+        state.profileMedia = null;
+        state.profileMediaType = null;
+        document.getElementById('profile-preview').style.display = 'none';
+        document.getElementById('profile-name').value = 'Axelux';
+        document.getElementById('profile-desc').value = '🚀 Premium LinkTree with 3D effects, custom backgrounds, rich text editing, and advanced customization. Connect with me on social media! ✨';
+        
+        // Reset border
+        state.profileBorder = {
+            width: 3,
+            color: '#ff85a1',
+            style: 'solid',
+            radius: 15,
+            shadow: 5
+        };
+        
+        updateProfileBorderPreview();
+        
+        // Reset colors
+        state.colors = {
+            text: '#ffffff',
+            background: 'glass',
+            button: 'pink',
+            primary: '#ff85a1',
+            secondary: '#85a7ff',
+            accent: '#85ffc7',
+            title: '#ff85a1'
+        };
+        
+        // Reset glass effects
+        state.glassEffects = {
+            opacity: 85,
+            blur: 8,
+            brightness: 100,
+            saturation: 100
+        };
+        
+        // Reset background
+        state.background = {
+            type: 'galaxy',
+            video: null,
+            blur: 8,
+            opacity: 85
+        };
+        
+        // Reset title
+        state.title = {
+            text: 'My Awesome LinkTree',
+            size: '2rem',
+            color: '#ff85a1'
+        };
+        
+        // Reset links
+        state.links = [];
+        document.getElementById('links-list').innerHTML = '';
+        addFirstLink();
+        
+        // Reset UI elements
+        document.getElementById('page-title').value = state.title.text;
+        document.getElementById('footer-text').value = 'Axelux | LinkTree 3D Pro MAX ULTRA';
+        
+        // Reset video background
+        document.getElementById('video-bg-preview-container').style.display = 'none';
+        document.getElementById('video-bg-preview').src = '';
+        
+        // Reset all sliders and inputs
+        resetAllControls();
+        
+        updateStats();
+        generatePreview();
+        showToast('Project reset successfully!', 'success');
     }
 }
 
-// ===== INITIALIZE APP =====
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize all managers
-    App.init();
-    ProfileManager.updateProfilePhotoPreview();
-    LinksManager.renderLinks();
-    DesignManager.updateAnalyticsChart();
-    AnalyticsManager.init();
-    ExportManager.updateCodePreview();
+function resetAllControls() {
+    // Border controls
+    document.getElementById('border-width').value = 3;
+    document.getElementById('border-width-value').textContent = '3px';
+    document.getElementById('border-radius').value = 15;
+    document.getElementById('border-radius-value').textContent = '15px';
+    document.getElementById('border-shadow').value = 5;
+    document.getElementById('border-shadow-value').textContent = '5px';
+    document.getElementById('border-custom-color').value = '#ff85a1';
     
-    // Make functions available globally for event handlers
-    window.App = App;
-    window.ProfileManager = ProfileManager;
-    window.LinksManager = LinksManager;
-    window.DesignManager = DesignManager;
-    window.AnalyticsManager = AnalyticsManager;
-    window.PreviewManager = PreviewManager;
-    window.ExportManager = ExportManager;
-    window.CssEditor = CssEditor;
-    window.StorageManager = StorageManager;
-    window.Utils = Utils;
+    // Border style
+    document.querySelectorAll('.border-style').forEach(style => {
+        style.classList.remove('active');
+        if (style.dataset.style === 'solid') {
+            style.classList.add('active');
+        }
+    });
     
-    console.log('✅ All systems initialized successfully!');
-});
+    // Background effects
+    document.getElementById('blur-effect').value = 8;
+    document.getElementById('blur-value').textContent = '8px';
+    document.getElementById('opacity-effect').value = 85;
+    document.getElementById('opacity-value').textContent = '85%';
+    document.getElementById('saturation-effect').value = 100;
+    document.getElementById('saturation-value').textContent = '100%';
+    
+    // Glass effects
+    document.getElementById('glass-opacity').value = 85;
+    document.getElementById('glass-opacity-value').textContent = '85%';
+    document.getElementById('glass-blur').value = 8;
+    document.getElementById('glass-blur-value').textContent = '8px';
+    document.getElementById('glass-brightness').value = 100;
+    document.getElementById('glass-brightness-value').textContent = '100%';
+    
+    // Title
+    document.getElementById('title-size').value = 2;
+    document.getElementById('title-size-value').textContent = '2rem';
+    document.getElementById('title-color').value = '#ff85a1';
+    
+    // Background gallery
+    document.querySelectorAll('.bg-option').forEach((option, index) => {
+        option.classList.remove('active');
+        if (index === 0) option.classList.add('active');
+    });
+    
+    // Button styles
+    document.querySelectorAll('.button-style').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.buttonStyle === 'pink') {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Color pickers
+    document.getElementById('custom-primary-color').value = '#ff85a1';
+    document.getElementById('custom-secondary-color').value = '#85a7ff';
+    document.getElementById('custom-accent-color').value = '#85ffc7';
+    
+    // Update color picker grids
+    document.querySelectorAll('#text-color-picker .color-option').forEach((option, index) => {
+        option.classList.remove('active');
+        if (index === 0) option.classList.add('active'); // White
+    });
+    
+    document.querySelectorAll('#border-color-picker .color-option').forEach((option, index) => {
+        option.classList.remove('active');
+        if (index === 0) option.classList.add('active'); // Pink
+    });
+}
+
+// ============ DRAG AND DROP ============
+function setupDragAndDrop() {
+    const uploadZones = document.querySelectorAll('.upload-zone');
+    
+    uploadZones.forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        
+        zone.addEventListener('dragleave', () => {
+            zone.classList.remove('drag-over');
+        });
+        
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                const parent = zone.closest('.upload-tab-content');
+                
+                if (parent) {
+                    if (parent.id === 'upload-image' || file.type.startsWith('image/')) {
+                        handleDroppedFile(file, 'image');
+                    } else if (parent.id === 'upload-video' || file.type.startsWith('video/')) {
+                        handleDroppedFile(file, 'video');
+                    } else if (parent.id === 'upload-gif' || file.type === 'image/gif') {
+                        handleDroppedFile(file, 'gif');
+                    } else {
+                        showToast('Unsupported file type!', 'error');
+                    }
+                }
+            }
+        });
+    });
+}
+
+function handleDroppedFile(file, type) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        state.profileMedia = e.target.result;
+        state.profileMediaType = type;
+        
+        const preview = document.getElementById('profile-preview');
+        const img = document.getElementById('profile-img-preview');
+        const video = document.getElementById('profile-video-preview');
+        
+        preview.style.display = 'block';
+        
+        if (type === 'video') {
+            img.style.display = 'none';
+            video.style.display = 'block';
+            video.src = e.target.result;
+            video.load();
+            video.play().catch(e => console.log('Autoplay prevented'));
+        } else {
+            video.style.display = 'none';
+            img.style.display = 'block';
+            img.src = e.target.result;
+        }
+        
+        updateProfileBorderPreview();
+        updateStats();
+        generatePreview();
+        showToast(`${type} uploaded via drag & drop!`, 'success');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+// ============ INITIAL SETUP COMPLETE ============
+console.log('🎨 LinkTree 3D Pro MAX ULTRA initialized successfully!');
+console.log('👤 Owner: Axelux');
+console.log('💻 Developer: AxeluzzCoDe');
+console.log('🚀 Version: 4.0.0');
+console.log('✨ Features: 200+');
+
+// Initial preview
+setTimeout(generatePreview, 1000);
